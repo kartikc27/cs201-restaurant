@@ -1,9 +1,9 @@
 ##Restaurant Project Repository
 
 ###Student Information
-  + Name: Tommy Trojan
-  + USC Email: ttrojan@usc.edu
-  + USC ID: 0123456789
+  + Name: Kartik Chillakanti
+  + USC Email: chillaka@usc.edu
+  + USC ID: 1094069213
 
 ###Resources
   + [Restaurant v1](http://www-scf.usc.edu/~csci201/readings/restaurant-v1.html)
