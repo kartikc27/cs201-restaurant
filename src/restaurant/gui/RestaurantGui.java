@@ -1,10 +1,20 @@
 package restaurant.gui;
 
-import restaurant.CustomerAgent;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import restaurant.CustomerAgent;
 /**
  * Main GUI class.
  * Contains the main frame and subsequent panels
@@ -25,7 +35,9 @@ public class RestaurantGui extends JFrame implements ActionListener {
     
     /* infoPanel holds information about the clicked customer, if there is one*/
     private JPanel infoPanel;
+    private JPanel myPanel;
     private JLabel infoLabel; //part of infoPanel
+    private JLabel myLabel;
     private JCheckBox stateCB;//part of infoLabel
 
     private Object currentPerson;/* Holds the agent that the info is about.
@@ -36,8 +48,8 @@ public class RestaurantGui extends JFrame implements ActionListener {
      * Sets up all the gui components.
      */
     public RestaurantGui() {
-        int WINDOWX = 450;
-        int WINDOWY = 350;
+        int WINDOWX = 750;
+        int WINDOWY = 650;
 
         animationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         animationFrame.setBounds(100+WINDOWX, 50 , WINDOWX+100, WINDOWY+100);
@@ -63,6 +75,13 @@ public class RestaurantGui extends JFrame implements ActionListener {
         infoPanel.setMaximumSize(infoDim);
         infoPanel.setBorder(BorderFactory.createTitledBorder("Information"));
 
+        myPanel = new JPanel();
+        myPanel.setBorder(BorderFactory.createTitledBorder("Me"));
+        myLabel = new JLabel();
+     
+        ImageIcon icon = new ImageIcon("res/football.png","this is a caption");
+        myLabel = new JLabel("Kartik Chillakanti", icon, JLabel.CENTER);
+        
         stateCB = new JCheckBox();
         stateCB.setVisible(false);
         stateCB.addActionListener(this);
@@ -73,7 +92,10 @@ public class RestaurantGui extends JFrame implements ActionListener {
         infoLabel.setText("<html><pre><i>Click Add to make customers</i></pre></html>");
         infoPanel.add(infoLabel);
         infoPanel.add(stateCB);
+        
+        myPanel.add(myLabel);
         add(infoPanel);
+        add(myPanel);
     }
     /**
      * updateInfoPanel() takes the given customer (or, for v3, Host) object and

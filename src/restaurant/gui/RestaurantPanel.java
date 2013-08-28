@@ -33,14 +33,14 @@ public class RestaurantPanel extends JPanel {
         gui.animationPanel.addGui(hostGui);
         host.startThread();
 
-        setLayout(new GridLayout(1, 2, 20, 20));
-        group.setLayout(new GridLayout(1, 2, 10, 10));
+        setLayout(new BorderLayout(20, 20));
+        group.setLayout(new BorderLayout(10, 10));
 
         group.add(customerPanel);
 
         initRestLabel();
-        add(restLabel);
-        add(group);
+        add(restLabel, BorderLayout.NORTH);
+        add(group, BorderLayout.CENTER);
     }
 
     /**
