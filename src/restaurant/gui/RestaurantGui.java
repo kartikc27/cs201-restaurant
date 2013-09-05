@@ -49,7 +49,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
      */
     public RestaurantGui() {
         int WINDOWX = 750;
-        int WINDOWY = 650;
+        int WINDOWY = 800;
 
         animationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         animationFrame.setBounds(100+WINDOWX, 50 , WINDOWX+100, WINDOWY+100);

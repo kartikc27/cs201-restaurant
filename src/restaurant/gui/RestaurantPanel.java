@@ -99,5 +99,17 @@ public class RestaurantPanel extends JPanel {
     		c.startThread();
     	}
     }
+    
+    public void markHungry(String name)
+    {
+    	for (int i = 0; i < customers.size(); i++)
+    	{
+    		 CustomerAgent temp = customers.get(i);
+    		 if (temp.getName() == name)
+    		 {
+    			  temp.getGui().setHungry();
+    		 }
+    	}	
+    }
 
 }
