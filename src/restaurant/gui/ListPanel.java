@@ -28,6 +28,8 @@ import restaurant.CustomerAgent;
  * This holds the scroll panes for the customers and, later, for waiters
  */
 public class ListPanel extends JPanel implements ActionListener, KeyListener{
+	
+	public static final int PANEDIM = 150;
 
     public JScrollPane pane =
             new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -78,8 +80,8 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         view.setLayout(new BoxLayout((Container) view, BoxLayout.Y_AXIS));
         pane.setViewportView(view);
         
-        pane.setMinimumSize(new Dimension(100, 100));
-        pane.setPreferredSize(new Dimension(150, 150));  
+        pane.setMinimumSize(new Dimension(PANEDIM, PANEDIM));
+        pane.setPreferredSize(new Dimension(PANEDIM, PANEDIM));  
         
         add(namePane);
         add(pane);

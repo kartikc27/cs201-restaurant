@@ -26,6 +26,10 @@ public class RestaurantGui extends JFrame implements ActionListener {
 	JFrame animationFrame = new JFrame("Restaurant Animation");
 	AnimationPanel animationPanel = new AnimationPanel();
 	
+	
+    public static final int XSIZE = 750;
+    public static final int YSIZE = 800;
+
     /* restPanel holds 2 panels
      * 1) the staff listing, menu, and lists of current customers all constructed
      *    in RestaurantPanel()
@@ -48,8 +52,8 @@ public class RestaurantGui extends JFrame implements ActionListener {
      * Sets up all the gui components.
      */
     public RestaurantGui() {
-        int WINDOWX = 750;
-        int WINDOWY = 800;
+        int WINDOWX = XSIZE;
+        int WINDOWY = YSIZE;
 
         animationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         animationFrame.setBounds(100+WINDOWX, 50 , WINDOWX+100, WINDOWY+100);

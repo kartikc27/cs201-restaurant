@@ -12,6 +12,8 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
     private final int WINDOWX = 450;
     private final int WINDOWY = 350;
+    private final int TABLEX = 200;
+    private final int TABLEY = 250;
     private Image bufferImage;
     private Dimension bufferSize;
 
@@ -40,7 +42,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
         //Here is the table
         g2.setColor(Color.ORANGE);
-        g2.fillRect(200, 250, 50, 50);//200 and 250 need to be table params
+        g2.fillRect(TABLEX, TABLEY, 50, 50);//200 and 250 need to be table params
 
 
         for(Gui gui : guis) {
