@@ -119,6 +119,7 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         		{
         			isHungry.setSelected(false);
         			restPanel.markHungry(name);
+        			restPanel.showInfo(type, name);
         		}
         		
         	}

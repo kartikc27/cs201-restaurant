@@ -19,8 +19,16 @@ public class CustomerGui implements Gui{
 	private enum Command {noCommand, GoToSeat, LeaveRestaurant};
 	private Command command=Command.noCommand;
 
-	public static final int xTable = 200;
-	public static final int yTable = 250;
+	 public static final int xTable1 = 200;
+	 public static final int yTable1 = 250;
+	    
+	 public static final int xTable2 = 350;
+	 public static final int yTable2 = 250;
+	    
+	 public static final int xTable3 = 500;
+	 public static final int yTable3 = 250;
+	 
+	 private static int tableNumber = 0;
 
 	public CustomerGui(CustomerAgent c, RestaurantGui gui){ //HostAgent m) {
 		agent = c;
@@ -33,7 +41,77 @@ public class CustomerGui implements Gui{
 	}
 
 	public void updatePosition() {
-		if (xPos < xDestination)
+		
+		if (tableNumber == 1){
+    		if (xPos < xDestination)
+                xPos++;
+            else if (xPos > xDestination)
+                xPos--;
+
+            if (yPos < yDestination)
+                yPos++;
+            else if (yPos > yDestination)
+                yPos--;
+            
+            if (xPos == xDestination && yPos == yDestination) {
+    			if (command==Command.GoToSeat) agent.msgAnimationFinishedGoToSeat();
+    			else if (command==Command.LeaveRestaurant) {
+    				agent.msgAnimationFinishedLeaveRestaurant();
+    				System.out.println("about to call gui.setCustomerEnabled(agent);");
+    				isHungry = false;
+    				gui.setCustomerEnabled(agent);
+    			}
+    			command=Command.noCommand;
+    		}
+    	}
+		
+		if (tableNumber == 2){
+    		if (xPos < xDestination)
+                xPos+=2;
+            else if (xPos > xDestination)
+                xPos--;
+
+            if (yPos < yDestination)
+                yPos++;
+            else if (yPos > yDestination)
+                yPos--;
+            
+            if (xPos == xDestination && yPos == yDestination) {
+    			if (command==Command.GoToSeat) agent.msgAnimationFinishedGoToSeat();
+    			else if (command==Command.LeaveRestaurant) {
+    				agent.msgAnimationFinishedLeaveRestaurant();
+    				System.out.println("about to call gui.setCustomerEnabled(agent);");
+    				isHungry = false;
+    				gui.setCustomerEnabled(agent);
+    			}
+    			command=Command.noCommand;
+    		}
+    	}
+		
+		if (tableNumber == 3){
+    		if (xPos < xDestination)
+                xPos+=2.7;
+            else if (xPos > xDestination)
+                xPos--;
+
+            if (yPos < yDestination)
+                yPos++;
+            else if (yPos > yDestination)
+                yPos--;
+            
+            if (xPos == xDestination && yPos == yDestination) {
+    			if (command==Command.GoToSeat) agent.msgAnimationFinishedGoToSeat();
+    			else if (command==Command.LeaveRestaurant) {
+    				agent.msgAnimationFinishedLeaveRestaurant();
+    				System.out.println("about to call gui.setCustomerEnabled(agent);");
+    				isHungry = false;
+    				gui.setCustomerEnabled(agent);
+    			}
+    			command=Command.noCommand;
+    		}
+    	}
+		
+		/*if (xPos < xDestination)
 			xPos++;
 		else if (xPos > xDestination)
 			xPos--;
@@ -52,7 +130,7 @@ public class CustomerGui implements Gui{
 				gui.setCustomerEnabled(agent);
 			}
 			command=Command.noCommand;
-		}
+		}*/
 	}
 
 	public void draw(Graphics2D g) {
@@ -77,8 +155,23 @@ public class CustomerGui implements Gui{
 	}
 
 	public void DoGoToSeat(int seatnumber) {//later you will map seatnumber to table coordinates.
-		xDestination = xTable;
-		yDestination = yTable;
+		tableNumber = seatnumber;
+		if (tableNumber == 1)
+		{
+			xDestination = xTable1;
+			yDestination = yTable1;
+		}
+		if (tableNumber == 2)
+		{
+			xDestination = xTable2;
+			yDestination = yTable2;
+		}
+		if (tableNumber == 3)
+		{
+			xDestination = xTable3;
+			yDestination = yTable3;
+		}
+		
 		command = Command.GoToSeat;
 	}
 

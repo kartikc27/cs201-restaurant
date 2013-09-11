@@ -1,10 +1,12 @@
 package restaurant;
 
-import agent.Agent;
-import restaurant.gui.HostGui;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Semaphore;
+
+import restaurant.gui.HostGui;
+import agent.Agent;
 
 /**
  * Restaurant Host Agent
@@ -14,7 +16,7 @@ import java.util.concurrent.Semaphore;
 //the HostAgent. A Host is the manager of a restaurant who sees that all
 //is proceeded as he wishes.
 public class HostAgent extends Agent {
-	static final int NTABLES = 1;//a global for the number of tables.
+	static final int NTABLES = 3;//a global for the number of tables.
 	//Notice that we implement waitingCustomers using ArrayList, but type it
 	//with List semantics.
 	public List<CustomerAgent> waitingCustomers
@@ -25,6 +27,8 @@ public class HostAgent extends Agent {
 
 	private String name;
 	private Semaphore atTable = new Semaphore(0,true);
+	
+	public boolean isFree = false;
 
 	public HostGui hostGui = null;
 
@@ -86,6 +90,7 @@ public class HostAgent extends Agent {
             so that table is unoccupied and customer is waiting.
             If so seat him at the table.
 		 */
+		
 		for (Table table : tables) {
 			if (!table.isOccupied()) {
 				if (!waitingCustomers.isEmpty()) {
@@ -94,6 +99,7 @@ public class HostAgent extends Agent {
 				}
 			}
 		}
+		
 
 		return false;
 		//we have tried all our rules and found
@@ -104,8 +110,20 @@ public class HostAgent extends Agent {
 	// Actions
 
 	private void seatCustomer(CustomerAgent customer, Table table) {
-		customer.msgSitAtTable();
+		
+		while (hostGui.headingBack)
+		{
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
+		customer.msgSitAtTable(table.tableNumber);
 		DoSeatCustomer(customer, table);
+		
 		try {
 			atTable.acquire();
 		} catch (InterruptedException e) {
@@ -115,6 +133,15 @@ public class HostAgent extends Agent {
 		table.setOccupant(customer);
 		waitingCustomers.remove(customer);
 		hostGui.DoLeaveCustomer();
+		for (Table tbl : tables)
+		{
+			System.out.println (tbl);
+			if (tbl.isOccupied())
+				System.out.println("this table is occupied");
+			else
+				System.out.println("this table is NOT occupied");
+		}
+		
 	}
 
 	// The animation DoXYZ() routines
@@ -122,7 +149,9 @@ public class HostAgent extends Agent {
 		//Notice how we print "customer" directly. It's toString method will do it.
 		//Same with "table"
 		print("Seating " + customer + " at " + table);
-		hostGui.DoBringToTable(customer); 
+		
+		hostGui.DoBringToTable(customer, table.tableNumber); 
+		isFree = false;
 
 	}
 

@@ -10,10 +10,14 @@ import java.util.ArrayList;
 
 public class AnimationPanel extends JPanel implements ActionListener {
 
-    private final int WINDOWX = 450;
-    private final int WINDOWY = 350;
-    private final int TABLEX = 200;
-    private final int TABLEY = 250;
+    private final int WINDOWX = 650;
+    private final int WINDOWY = 450;
+    private final int TABLE1X = 200;
+    private final int TABLE1Y = 250;
+    private final int TABLE2X = 350;
+    private final int TABLE2Y = 250;
+    private final int TABLE3X = 500;
+    private final int TABLE3Y = 250;
     private Image bufferImage;
     private Dimension bufferSize;
 
@@ -42,8 +46,11 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
         //Here is the table
         g2.setColor(Color.ORANGE);
-        g2.fillRect(TABLEX, TABLEY, 50, 50);//200 and 250 need to be table params
-
+        g2.fillRect(TABLE1X, TABLE1Y, 50, 50);//200 and 250 need to be table params
+        g2.setColor(Color.CYAN);
+        g2.fillRect(TABLE2X, TABLE2Y, 50, 50);
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.fillRect(TABLE3X, TABLE3Y, 50, 50);
 
         for(Gui gui : guis) {
             if (gui.isPresent()) {
