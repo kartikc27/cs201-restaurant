@@ -154,7 +154,6 @@ public class CustomerAgent extends Agent {
 	private void SitDown() {
 		Do("Being seated. Going to table");
 		customerGui.DoGoToSeat(1);//hack; only one table
-		//state = AgentState.OrderingFood;
 	}
 	
 	private void CallWaiter() {

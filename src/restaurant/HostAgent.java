@@ -80,6 +80,7 @@ public class HostAgent extends Agent {
 		for (Table tbl : tables) {
 			if (tbl.tableNumber == table) {
 				tbl.setUnoccupied();
+				stateChanged();
 			}
 		}
 	}
@@ -96,7 +97,7 @@ public class HostAgent extends Agent {
 
 	public void msgAtTable() {//from animation
 		//print("msgAtTable() called");
-		atTable.release();// = true;
+		s.release();// = true;
 		stateChanged();
 	}*/
 
