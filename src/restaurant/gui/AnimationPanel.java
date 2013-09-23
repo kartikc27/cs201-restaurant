@@ -1,5 +1,7 @@
 package restaurant.gui;
 
+// ADD THE TABLE LOCATIONS HERE. HOST GUI GETS LOCATIONS FROM THE ANIMATION PANEL. MAINTAIN LIST OF TABLES HERE
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -12,6 +14,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
     private final int WINDOWX = 650;
     private final int WINDOWY = 450;
+   
     private final int TABLE1X = 200;
     private final int TABLE1Y = 250;
     private final int TABLE2X = 350;
@@ -45,6 +48,8 @@ public class AnimationPanel extends JPanel implements ActionListener {
         g2.fillRect(0, 0, WINDOWX, WINDOWY );
 
         //Here is the table
+        
+        
         g2.setColor(Color.ORANGE);
         g2.fillRect(TABLE1X, TABLE1Y, 50, 50);//200 and 250 need to be table params
         g2.setColor(Color.CYAN);
@@ -72,4 +77,11 @@ public class AnimationPanel extends JPanel implements ActionListener {
     public void addGui(HostGui gui) {
         guis.add(gui);
     }
+    
+    public void addGui(WaiterGui gui) {
+    	guis.add(gui);
+    }
+    
+    //public void addTable
+    // pass table location information to the HostGui?
 }

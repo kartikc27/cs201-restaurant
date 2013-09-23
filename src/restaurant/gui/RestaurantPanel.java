@@ -1,12 +1,16 @@
 package restaurant.gui;
 
+import java.awt.BorderLayout;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import restaurant.CookAgent;
 import restaurant.CustomerAgent;
 import restaurant.HostAgent;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Vector;
+import restaurant.WaiterAgent;
 
 /**
  * Panel in frame that contains all the restaurant information,
@@ -17,6 +21,12 @@ public class RestaurantPanel extends JPanel {
     //Host, cook, waiters and customers
     private HostAgent host = new HostAgent("Sarah");
     private HostGui hostGui = new HostGui(host);
+    
+    
+    private WaiterAgent waiter = new WaiterAgent("Kartik");
+    private WaiterGui waiterGui = new WaiterGui(waiter);
+    
+    private CookAgent cook = new CookAgent("Rami"); 
 
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 
@@ -29,9 +39,19 @@ public class RestaurantPanel extends JPanel {
     public RestaurantPanel(RestaurantGui gui) {
         this.gui = gui;
         host.setGui(hostGui);
+        waiter.setGui(waiterGui);
+        waiter.setCook(cook);
+        waiter.setHost(host);
+        
+        cook.startThread();
+        
+        host.addWaiter(waiter);
 
         gui.animationPanel.addGui(hostGui);
         host.startThread();
+        
+        gui.animationPanel.addGui(waiterGui);
+        waiter.startThread();
 
         setLayout(new BorderLayout(20, 20));
         group.setLayout(new BorderLayout(10, 10));

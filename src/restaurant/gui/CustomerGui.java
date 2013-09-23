@@ -111,26 +111,6 @@ public class CustomerGui implements Gui{
     		}
     	}
 		
-		/*if (xPos < xDestination)
-			xPos++;
-		else if (xPos > xDestination)
-			xPos--;
-
-		if (yPos < yDestination)
-			yPos++;
-		else if (yPos > yDestination)
-			yPos--;
-
-		if (xPos == xDestination && yPos == yDestination) {
-			if (command==Command.GoToSeat) agent.msgAnimationFinishedGoToSeat();
-			else if (command==Command.LeaveRestaurant) {
-				agent.msgAnimationFinishedLeaveRestaurant();
-				System.out.println("about to call gui.setCustomerEnabled(agent);");
-				isHungry = false;
-				gui.setCustomerEnabled(agent);
-			}
-			command=Command.noCommand;
-		}*/
 	}
 
 	public void draw(Graphics2D g) {
@@ -143,7 +123,7 @@ public class CustomerGui implements Gui{
 	}
 	public void setHungry() {
 		isHungry = true;
-		agent.gotHungry();
+		agent.msgGotHungry();
 		setPresent(true);
 	}
 	public boolean isHungry() {
@@ -179,5 +159,9 @@ public class CustomerGui implements Gui{
 		xDestination = -40;
 		yDestination = -40;
 		command = Command.LeaveRestaurant;
+	}
+	
+	public String receiveOrderFromGui() {
+		return "Steak";
 	}
 }
