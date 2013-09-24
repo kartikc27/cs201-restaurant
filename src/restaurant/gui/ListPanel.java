@@ -57,9 +57,8 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
     public ListPanel(RestaurantPanel rp, String type) {
         restPanel = rp;
         this.type = type;
-
+       
         setLayout(new BoxLayout((Container) this, BoxLayout.Y_AXIS));
-        add(new JLabel("<html><pre> <u>" + type + "</u><br></pre></html>"));
 
         addPersonB.addActionListener(this);
 
@@ -70,6 +69,7 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         isHungry.setVisible(true);
         isHungry.setText("Hungry?");
 
+        add(Box.createRigidArea(new Dimension(0, 35)));
         
         namePane.add(addPersonB);
         namePane.add(nameField);

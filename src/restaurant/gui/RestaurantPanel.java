@@ -6,6 +6,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import restaurant.CookAgent;
 import restaurant.CustomerAgent;
@@ -19,20 +20,22 @@ import restaurant.WaiterAgent;
 public class RestaurantPanel extends JPanel {
 
     //Host, cook, waiters and customers
-    private HostAgent host = new HostAgent("Sarah");
+    private HostAgent host = new HostAgent("Rami");
     private HostGui hostGui = new HostGui(host);
     
     
     private WaiterAgent waiter = new WaiterAgent("Kartik");
     private WaiterGui waiterGui = new WaiterGui(waiter);
     
-    private CookAgent cook = new CookAgent("Rami"); 
+    private CookAgent cook = new CookAgent("Sarah"); 
 
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 
     private JPanel restLabel = new JPanel();
     private ListPanel customerPanel = new ListPanel(this, "Customers");
     private JPanel group = new JPanel();
+    
+
 
     private RestaurantGui gui; //reference to main gui
 
@@ -57,7 +60,10 @@ public class RestaurantPanel extends JPanel {
         group.setLayout(new BorderLayout(10, 10));
 
         group.add(customerPanel);
-
+        TitledBorder title = BorderFactory.createTitledBorder("Customers");
+        title.setTitleJustification(TitledBorder.CENTER);
+        group.setBorder(title);
+        
         initRestLabel();
         add(restLabel, BorderLayout.NORTH);
         add(group, BorderLayout.CENTER);
@@ -72,9 +78,9 @@ public class RestaurantPanel extends JPanel {
         //restLabel.setLayout(new BoxLayout((Container)restLabel, BoxLayout.Y_AXIS));
         restLabel.setLayout(new BorderLayout());
         label.setText(
-                "<html><h3><u>Tonight's Staff</u></h3><table><tr><td>host:</td><td>" + host.getName() + "</td></tr></table><h3><u> Menu</u></h3><table><tr><td>Steak</td><td>$15.99</td></tr><tr><td>Chicken</td><td>$10.99</td></tr><tr><td>Salad</td><td>$5.99</td></tr><tr><td>Pizza</td><td>$8.99</td></tr></table><br></html>");
+                "<html><h3><u>Tonight's Staff</u></h3><table><tr><td>Host:</td><td>" + host.getName() + "</td></tr></table><h3><u> Menu</u></h3><table><tr><td>Steak</td><td>$15.99</td></tr><tr><td>Chicken</td><td>$10.99</td></tr><tr><td>Salad</td><td>$5.99</td></tr><tr><td>Pizza</td><td>$8.99</td></tr></table><br></html>");
 
-        restLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+        restLabel.setBorder(BorderFactory.createTitledBorder( ""));
         restLabel.add(label, BorderLayout.CENTER);
         restLabel.add(new JLabel("               "), BorderLayout.EAST);
         restLabel.add(new JLabel("               "), BorderLayout.WEST);

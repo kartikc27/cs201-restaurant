@@ -1,8 +1,9 @@
 package restaurant.gui;
 
-import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,19 +24,17 @@ public class RestaurantGui extends JFrame implements ActionListener {
     /* The GUI has two frames, the control frame (in variable gui) 
      * and the animation frame, (in variable animationFrame within gui)
      */
-	JFrame animationFrame = new JFrame("Restaurant Animation");
-	AnimationPanel animationPanel = new AnimationPanel();
 	
+	public AnimationPanel animationPanel;
+	//JPanel InfoLayout;
 	
-    public static final int XSIZE = 750;
-    public static final int YSIZE = 800;
 
     /* restPanel holds 2 panels
      * 1) the staff listing, menu, and lists of current customers all constructed
      *    in RestaurantPanel()
      * 2) the infoPanel about the clicked Customer (created just below)
      */    
-    private RestaurantPanel restPanel = new RestaurantPanel(this);
+    private RestaurantPanel restPanel;
     
     /* infoPanel holds information about the clicked customer, if there is one*/
     private JPanel infoPanel;
@@ -43,6 +42,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
     private JLabel infoLabel; //part of infoPanel
     private JLabel myLabel;
     private JCheckBox stateCB;//part of infoLabel
+    private JPanel InfoLayout; 
 
     private Object currentPerson;/* Holds the agent that the info is about.
     								Seems like a hack */
@@ -52,27 +52,28 @@ public class RestaurantGui extends JFrame implements ActionListener {
      * Sets up all the gui components.
      */
     public RestaurantGui() {
-        int WINDOWX = XSIZE;
-        int WINDOWY = YSIZE;
 
-        animationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        animationFrame.setBounds(100+WINDOWX, 50 , WINDOWX+100, WINDOWY+100);
-        animationFrame.setVisible(true);
-    	animationFrame.add(animationPanel); 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        animationPanel = new AnimationPanel();
+        animationPanel.setVisible(true);
     	
-    	setBounds(50, 50, WINDOWX, WINDOWY);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    	setBounds(0,0,screenSize.width, screenSize.height);
+       
 
-        setLayout(new BoxLayout((Container) getContentPane(), 
-        		BoxLayout.Y_AXIS));
-
-        Dimension restDim = new Dimension(WINDOWX, (int) (WINDOWY * .6));
+        Dimension restDim = new Dimension(screenSize.width, (int) (screenSize.height * .6));
+        restPanel = new RestaurantPanel(this);
         restPanel.setPreferredSize(restDim);
         restPanel.setMinimumSize(restDim);
         restPanel.setMaximumSize(restDim);
-        add(restPanel);
+        
+        InfoLayout = new JPanel();
+
+        InfoLayout.setLayout(new BoxLayout(InfoLayout, BoxLayout.Y_AXIS));
+        InfoLayout.add(restPanel);
         
         // Now, setup the info panel
-        Dimension infoDim = new Dimension(WINDOWX, (int) (WINDOWY * .25));
+        Dimension infoDim = new Dimension(screenSize.width, (int) (screenSize.height * .25));
         infoPanel = new JPanel();
         infoPanel.setPreferredSize(infoDim);
         infoPanel.setMinimumSize(infoDim);
@@ -98,8 +99,18 @@ public class RestaurantGui extends JFrame implements ActionListener {
         infoPanel.add(stateCB);
         
         myPanel.add(myLabel);
-        add(infoPanel);
-        add(myPanel);
+        InfoLayout.add(infoPanel);
+        InfoLayout.add(myPanel);
+                
+        setLayout(new GridLayout(1,2));
+        
+        
+        //Dimension dim = new Dimension (screenSize.width/2, screenSize.height);
+        //InfoLayout.setPreferredSize(dim);
+        add (InfoLayout);
+        //animationPanel.setPreferredSize(dim);
+        add (animationPanel);
+       // System.out.println (animationPanel.getPreferredSize());
     }
     /**
      * updateInfoPanel() takes the given customer (or, for v3, Host) object and
@@ -158,7 +169,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
      */
     public static void main(String[] args) {
         RestaurantGui gui = new RestaurantGui();
-        gui.setTitle("csci201 Restaurant");
+        gui.setTitle("Rami's Restaurant");
         gui.setVisible(true);
         gui.setResizable(false);
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

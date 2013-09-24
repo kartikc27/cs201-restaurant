@@ -153,7 +153,7 @@ public class CustomerAgent extends Agent {
 
 	private void SitDown() {
 		Do("Being seated. Going to table");
-		customerGui.DoGoToSeat(1);//hack; only one table
+		customerGui.DoGoToSeat();//hack; only one table
 	}
 	
 	private void CallWaiter() {

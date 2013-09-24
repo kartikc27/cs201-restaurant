@@ -18,6 +18,8 @@ public class WaiterAgent extends Agent {
 	
 	private String name;
 	public Semaphore atTable = new Semaphore(0, true);
+	public Semaphore leftCustomer = new Semaphore(0, true);
+	public Semaphore takeOrder = new Semaphore(0, true);
 	
 	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven};
 	
@@ -76,8 +78,6 @@ public class WaiterAgent extends Agent {
 
 	public void msgSitAtTable(CustomerAgent cust, int table) {
 		customers.add(new MyCustomer(cust, table, CustomerState.waiting));
-		
-		System.out.println ("Customer State changed to waiting");
 		
 		stateChanged();
 	}
@@ -179,23 +179,44 @@ public class WaiterAgent extends Agent {
 		c.c.msgFollowMe(/*Menu()*/);
 		c.c.setWaiter(this);
 		DoSeatCustomer(c.c, c.t);
-		System.out.println ("Trying to seat...");
 		try {
-			atTable.acquire(); // gets put to sleep since its not able to acquire the permit
+			atTable.acquire(); 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		c.s = CustomerState.seated; 
-		waiterGui.DoLeaveCustomer();
+		
+		boolean readyCustomers = false;
+		
+		for (MyCustomer mc : customers) {
+			if (mc.s == CustomerState.readyToOrder) {
+				readyCustomers = true;
+			}
+		}
+		
+		if (!readyCustomers)
+		{
+			waiterGui.DoLeaveCustomer();
+		
+		try {
+			leftCustomer.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		}
 	}
 	
 	private void TakeOrder(MyCustomer c){
-		//c.s = CustomerState.asked;
+		DoTakeOrder(c.c, c.t);
 		c.c.msgWhatWouldYouLike();
 		c.s = CustomerState.asked;
+		
 	}
 	
+	
+
 	private void GiveOrderToCook(MyCustomer c){
 		System.out.println (c.choice);
 		System.out.println (c.t);
@@ -221,14 +242,22 @@ public class WaiterAgent extends Agent {
 	private void DoSeatCustomer(CustomerAgent customer, int tableNumber) {
 		//Notice how we print "customer" directly. It's toString method will do it.
 		//Same with "table"
-		
 		print("Seating " + customer + " at " + tableNumber);
-		waiterGui.DoBringToTable(customer, tableNumber); 
+		waiterGui.DoBringToTable(customer.getGui(), tableNumber); 
 	}
 	
-	private void DoGoToCustomer(MyCustomer c) {
-		// animation
+	private void DoTakeOrder(CustomerAgent customer, int tableNumber) {
+		print("Taking the order of " + customer + " at " + tableNumber);
+		waiterGui.DoGoToTable(customer.getGui(), tableNumber); 
+		try {
+			atTable.acquire(); 
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
+	
 	
 	public void setGui(WaiterGui gui) {
 		waiterGui = gui;

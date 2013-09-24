@@ -12,23 +12,38 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+
 public class WaiterGui implements Gui {
 	
-	private class Location {
+	class Location {
 		public Location (int x, int y) {
+			this.setX(x);
+			this.y = y;
+		}
+		public int getX() {
+			return x;
+		}
+		public void setX(int x) {
 			this.x = x;
+		}
+		public int getY() {
+			return y;
+		}
+		public void setY(int y) {
 			this.y = y;
 		}
 		private int x;
 		private int y;
 	}
 	
-	public List<Location> locations = new ArrayList<Location>();
+	public static List<Location> locations = new ArrayList<Location>();
 
     private WaiterAgent agent = null;
+    
 
-    private int xPos = 40, yPos = 40;//default waiter position
-    private int xDestination = 40, yDestination = 40;//default start position
+    private int xPos = -30, yPos = -30;//default waiter position
+    private int xDestination = -30, yDestination = -30;//default start position
     
     private int tableNumber = 0;
     public boolean headingBack = false;
@@ -36,10 +51,10 @@ public class WaiterGui implements Gui {
 
     public WaiterGui(WaiterAgent agent) {
         this.agent = agent;
-        int n = 200;
+        int n = 150;
         for (int i = 0; i < 3; i++) {
-        	locations.add(new Location(n, 250));
-        	n += 150;
+        	locations.add(new Location(n, 550));
+        	n += 200;
         }
     }
 
@@ -57,43 +72,52 @@ public class WaiterGui implements Gui {
     	
     	if (tableNumber > 0) {
     		if (xPos == xDestination && yPos == yDestination
-        		& (xDestination == (locations.get(tableNumber - 1).x + 20)) & (yDestination == (locations.get(tableNumber - 1).y - 20))) {
+        		& (xDestination == (locations.get(tableNumber - 1).getX() + 20)) & (yDestination == (locations.get(tableNumber - 1).y - 20))) {
     				agent.msgAtTable();
     		}		
         }
     	
         
-        if ((xPos < 0) && (yPos < 0))
+        if ((xPos < -5) || (yPos < -5))
         {
         	if (headingBack)
         	{
+        		agent.leftCustomer.release();
         		headingBack = false;
-        		xPos = -20;
-        		yPos = -20;
+        		xPos = -30;
+        		yPos = -30;
         	}
         }    
     }
 
     public void draw(Graphics2D g) {
-        g.setColor(Color.ORANGE);
-        g.fillRect(xPos, yPos, 20, 20);
+    	Color waiterColor = new Color(41, 128, 185);
+        g.setColor(waiterColor);
+        g.fillRect(xPos, yPos, 30, 30);
     }
 
     public boolean isPresent() {
         return true;
     }
 
-    public void DoBringToTable(CustomerAgent customer, int tNum) {
+    public void DoBringToTable(CustomerGui CustGui, int tNum) {
     	tableNumber = tNum;
-    	
-    	xDestination = locations.get(tableNumber-1).x + 20;
+    	xDestination = locations.get(tableNumber-1).getX() + 20;
     	yDestination = locations.get(tableNumber-1).y - 20;
+    	CustGui.setDestination(xDestination, yDestination);
+    }
+    
+    public void DoGoToTable(CustomerGui CustGui, int tNum) {
+    	tableNumber = tNum;
+    	xDestination = locations.get(tableNumber-1).getX() + 20;
+    	yDestination = locations.get(tableNumber-1).y - 70;
+    	
     }
 
     public void DoLeaveCustomer() {
     	headingBack = true;
-        xDestination = 40;
-        yDestination = 40;
+        xDestination = -30;
+        yDestination = -30;
     }
 
     public int getXPos() {
