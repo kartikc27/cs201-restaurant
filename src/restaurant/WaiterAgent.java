@@ -21,6 +21,8 @@ public class WaiterAgent extends Agent {
 	public Semaphore leftCustomer = new Semaphore(0, true);
 	public Semaphore takeOrder = new Semaphore(0, true);
 	
+	boolean readyCustomers = false;
+	
 	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven};
 	
 	private class MyCustomer {
@@ -85,10 +87,8 @@ public class WaiterAgent extends Agent {
 	public void msgImReadyToOrder(CustomerAgent cust) {
 		for (MyCustomer mc : customers)
 		{
-			System.out.println ("IM HERE");
 			if (cust.getName() == mc.c.getName()) {
 				mc.s = CustomerState.readyToOrder;
-				System.out.println ("Ready to order");
 				stateChanged();
 			}
 				
@@ -96,20 +96,18 @@ public class WaiterAgent extends Agent {
 	}
 	
 	public void msgHereIsMyChoice(String choice, CustomerAgent c) {
-		System.out.println ("received choice");
 		for (MyCustomer mc : customers)
 		{
 			if (c.getName() == mc.c.getName()) {
 				mc.choice = choice;
 				mc.s = CustomerState.ordered;
-				System.out.println ("state changed to ordered");
 				stateChanged();
 			}		
 		}
+		
 	}
 
 	public void msgOrderIsReady(String choice, int table) {
-		//System.out.println("received the order from cook");
 		readyOrders.add(new WaiterOrder(choice, table));
 		stateChanged();
 	}
@@ -128,7 +126,7 @@ public class WaiterAgent extends Agent {
 	}
 	
 	
-	public void msgAtTable() { // from animation
+	public void msgAtTable() { 
 		atTable.release();
 		stateChanged();
 	}
@@ -138,12 +136,9 @@ public class WaiterAgent extends Agent {
 	 * @return 
 	 */
 	protected boolean pickAndExecuteAnAction() {
-		//System.out.println ("pick and execute an action");
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.waiting) {
-				System.out.println ("seating customer");
-				seatCustomer(mc); // does not ever return
-				System.out.println ("done seating");
+				seatCustomer(mc); 
 				return true;
 			}
 		}
@@ -151,14 +146,12 @@ public class WaiterAgent extends Agent {
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.readyToOrder) {
 				TakeOrder(mc);
-				//System.out.println("Time to take order");
 				return true;
 			}
 		}
 		
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.ordered) {
-				//System.out.println ("state is currently ordererd");
 				GiveOrderToCook(mc);
 				return true;
 			}
@@ -176,7 +169,7 @@ public class WaiterAgent extends Agent {
 	// Actions
 
 	private void seatCustomer(MyCustomer c) {
-		c.c.msgFollowMe(/*Menu()*/);
+		c.c.msgFollowMe(new Menu());
 		c.c.setWaiter(this);
 		DoSeatCustomer(c.c, c.t);
 		try {
@@ -187,7 +180,7 @@ public class WaiterAgent extends Agent {
 		}
 		c.s = CustomerState.seated; 
 		
-		boolean readyCustomers = false;
+		readyCustomers = false;
 		
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.readyToOrder) {
@@ -218,8 +211,6 @@ public class WaiterAgent extends Agent {
 	
 
 	private void GiveOrderToCook(MyCustomer c){
-		System.out.println (c.choice);
-		System.out.println (c.t);
 		cook.msgHereIsAnOrder(this, c.choice, c.t);
 		c.s = CustomerState.orderGiven; 
 	}
@@ -235,7 +226,6 @@ public class WaiterAgent extends Agent {
 				}
 			}
 		}
-		//msgHereIsYourFood();
 		
 	}
 	
@@ -255,6 +245,7 @@ public class WaiterAgent extends Agent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 	
 	

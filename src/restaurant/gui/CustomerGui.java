@@ -92,8 +92,4 @@ public class CustomerGui implements Gui{
 		yDestination = -40;
 		command = Command.LeaveRestaurant;
 	}
-	
-	public String receiveOrderFromGui() {
-		return "Steak";
-	}
 }

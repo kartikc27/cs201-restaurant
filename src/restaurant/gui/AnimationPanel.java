@@ -18,6 +18,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
    
     private Image bufferImage;
     private Dimension bufferSize;
+    private int frameDisplay = 10;
 
     private List<Gui> guis = new ArrayList<Gui>();
 
@@ -28,7 +29,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
         
         bufferSize = this.getSize();
  
-    	Timer timer = new Timer(20, this );
+    	Timer timer = new Timer(frameDisplay, this );
     	timer.start();
     }
 

@@ -70,9 +70,17 @@ public class WaiterGui implements Gui {
         else if (yPos > yDestination)
             yPos--;
     	
+    	// WAITER AGENT IS GOING TO SLEEP. SINCE THE SEMAPHORE IS NOT RELEASED WHEN IT GOES TO TAKE ORDER (YPOS IS DIFF)
     	if (tableNumber > 0) {
     		if (xPos == xDestination && yPos == yDestination
         		& (xDestination == (locations.get(tableNumber - 1).getX() + 20)) & (yDestination == (locations.get(tableNumber - 1).y - 20))) {
+    				agent.msgAtTable();
+    		}		
+        }
+    	
+    	if (tableNumber > 0) {
+    		if (xPos == xDestination && yPos == yDestination
+        		& (xDestination == (locations.get(tableNumber - 1).getX() + 20)) & (yDestination == (locations.get(tableNumber - 1).y - 70))) {
     				agent.msgAtTable();
     		}		
         }

@@ -69,7 +69,6 @@ public class CookAgent extends Agent {
 		
 			for (CookOrder o : orders){
 				if (o.state == State.pending) {
-					System.out.println (o.state);
 					CookIt(o);
 					break;
 				}
@@ -94,8 +93,7 @@ public class CookAgent extends Agent {
 	
 	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
 		orders.add(new CookOrder(w, choice, table, State.pending));
-		System.out.println (choice + " " + table);
-		System.out.println ("I have this many orders" + orders.size());
+		System.out.println ("Received order of " + choice);
 		stateChanged();
 	}
 	
@@ -106,9 +104,8 @@ public class CookAgent extends Agent {
 	}
 	
 	private void CookIt(CookOrder o){
-		System.out.println ("Cooking...");
 		o.state = State.cooking;
-		print("Done cooking");
+		System.out.println("Done cooking " + o.choice);
 		FoodDone(o);
 		stateChanged();
 	}

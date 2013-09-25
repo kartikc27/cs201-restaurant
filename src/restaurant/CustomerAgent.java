@@ -1,11 +1,11 @@
 package restaurant;
 
-import restaurant.gui.CustomerGui;
-import restaurant.gui.RestaurantGui;
-import agent.Agent;
-
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import restaurant.gui.CustomerGui;
+import agent.Agent;
 
 /**
  * Restaurant customer agent.
@@ -20,6 +20,7 @@ public class CustomerAgent extends Agent {
 	private HostAgent host;
 	private WaiterAgent waiter;
 
+	private Menu myMenu;
 
 	//    private boolean isHungry = false; //hack for gui
 	public enum AgentState
@@ -57,13 +58,14 @@ public class CustomerAgent extends Agent {
 	}
 	// Messages
 
-	public void msgGotHungry() {//from animation
+	public void msgGotHungry() {
 		print("I'm hungry");
 		event = AgentEvent.gotHungry;
 		stateChanged();
 	}
 
-	public void msgFollowMe() {
+	public void msgFollowMe(Menu menu) {
+		myMenu = menu;
 		print("Received msgFollowMe");
 		event = AgentEvent.followWaiter;
 		stateChanged();
@@ -106,7 +108,6 @@ public class CustomerAgent extends Agent {
 		}
 				
 		if (state == AgentState.WaitingInRestaurant && event == AgentEvent.followWaiter ){
-			System.out.println ("time to follow the waiter!");
 			state = AgentState.BeingSeated;
 			SitDown();
 			return true;
@@ -162,9 +163,11 @@ public class CustomerAgent extends Agent {
 	}
 	
 	private void OrderFood() {
-		String choice = customerGui.receiveOrderFromGui();
+		Random randomGenerator = new Random();
+		int randomInt = randomGenerator.nextInt(4);
+		String choice = myMenu.menuItems[randomInt];
 		waiter.msgHereIsMyChoice(choice, this);
-		Do ("I would like to order" + choice); 
+		Do ("I would like to order " + choice); 
 	}
 
 	private void EatFood() {
@@ -186,7 +189,7 @@ public class CustomerAgent extends Agent {
 				stateChanged();
 			}
 		},
-		5000);//getHungerLevel() * 1000);//how long to wait before running task
+		getHungerLevel() * 1000);
 	}
 
 	private void LeaveTable() {
@@ -222,6 +225,8 @@ public class CustomerAgent extends Agent {
 	public CustomerGui getGui() {
 		return customerGui;
 	}
+	
+	
 }
 
 

@@ -1,9 +1,12 @@
 package restaurant.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -17,11 +20,12 @@ import restaurant.WaiterAgent;
  * Panel in frame that contains all the restaurant information,
  * including host, cook, waiters, and customers.
  */
-public class RestaurantPanel extends JPanel {
+public class RestaurantPanel extends JPanel implements ActionListener {
 
     //Host, cook, waiters and customers
     private HostAgent host = new HostAgent("Rami");
     private HostGui hostGui = new HostGui(host);
+    boolean isPaused = false;
     
     
     private WaiterAgent waiter = new WaiterAgent("Kartik");
@@ -34,6 +38,7 @@ public class RestaurantPanel extends JPanel {
     private JPanel restLabel = new JPanel();
     private ListPanel customerPanel = new ListPanel(this, "Customers");
     private JPanel group = new JPanel();
+    private JButton b1;
     
 
 
@@ -84,6 +89,13 @@ public class RestaurantPanel extends JPanel {
         restLabel.add(label, BorderLayout.CENTER);
         restLabel.add(new JLabel("               "), BorderLayout.EAST);
         restLabel.add(new JLabel("               "), BorderLayout.WEST);
+        
+        b1 = new JButton("Pause");
+        
+        restLabel.add(b1, BorderLayout.EAST);
+        b1.addActionListener(this);
+        
+       
     }
 
     /**
@@ -137,5 +149,20 @@ public class RestaurantPanel extends JPanel {
     		 }
     	}	
     }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// pause each customer, waiter, host, and cook
+		for (CustomerAgent c : customers) {
+			c.msgPause();
+		}
+		host.msgPause();
+		waiter.msgPause();
+		isPaused = !isPaused;
+		if (isPaused) {b1.setText("Unpause");}
+		else {b1.setText("Pause");}
+		
+	}
+
 
 }

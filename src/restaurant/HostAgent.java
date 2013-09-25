@@ -146,7 +146,6 @@ public class HostAgent extends Agent {
 	// Actions
 
 	private void tellWaiterToSeatCustomer(CustomerAgent customer, Table table, WaiterAgent waiter) {
-		System.out.println ("here");
 		/*while (hostGui.headingBack)
 		{
 			try {
