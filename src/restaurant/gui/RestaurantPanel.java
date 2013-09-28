@@ -27,11 +27,13 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     private HostGui hostGui = new HostGui(host);
     boolean isPaused = false;
     
+    private RestaurantGui gui; //reference to main gui
     
     private WaiterAgent waiter = new WaiterAgent("Kartik");
     private WaiterGui waiterGui = new WaiterGui(waiter);
     
     private CookAgent cook = new CookAgent("Sarah"); 
+    private CookGui cookGui = new CookGui(cook);
 
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 
@@ -42,7 +44,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     
 
 
-    private RestaurantGui gui; //reference to main gui
+   
 
     public RestaurantPanel(RestaurantGui gui) {
         this.gui = gui;
@@ -50,9 +52,8 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         waiter.setGui(waiterGui);
         waiter.setCook(cook);
         waiter.setHost(host);
-        
-        cook.startThread();
-        
+        waiterGui.setAnimationPanel(gui.animationPanel);
+                
         host.addWaiter(waiter);
 
         gui.animationPanel.addGui(hostGui);
@@ -60,6 +61,10 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         
         gui.animationPanel.addGui(waiterGui);
         waiter.startThread();
+        
+        gui.animationPanel.addGui(cookGui);
+        cook.setGui(cookGui);
+        cook.startThread();
 
         setLayout(new BorderLayout(20, 20));
         group.setLayout(new BorderLayout(10, 10));
@@ -130,7 +135,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		CustomerAgent c = new CustomerAgent(name);	
     		CustomerGui g = new CustomerGui(c, gui);
 
-    		gui.animationPanel.addGui(g);// dw
+    		gui.animationPanel.addGui(g);
     		c.setHost(host);
     		c.setGui(g);
     		customers.add(c);

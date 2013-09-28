@@ -1,26 +1,29 @@
 package restaurant.gui;
 
 
-import restaurant.CustomerAgent;
-import restaurant.HostAgent;
-import restaurant.WaiterAgent;
-
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 
-public class HostGui implements Gui {
+import restaurant.CookAgent;
 
-    private HostAgent agent = null;
+public class CookGui implements Gui {
 
-    private int xPos = 165, yPos = 100;//default waiter position
+    private CookAgent agent = null;
+    
+    private Graphics2D g = null;
+
+    private int xPos = 570, yPos = 110; // cook position
             
 
-    public HostGui(HostAgent agent) {
-        this.agent = agent;
-    }
+    public CookGui(CookAgent agent) {
+		this.agent = agent;
+	}
+
     
     // retrieve table location information from the animation panel
     // pass the table location information to the Customer GUI (the customer cannot access the info, but the GUI can)
@@ -28,8 +31,10 @@ public class HostGui implements Gui {
 
 
     public void draw(Graphics2D g) {
-    	Image icon = new ImageIcon("res/Rami.png").getImage();
-        g.drawImage(icon, xPos, yPos, null);
+    	this.g = g;
+    	Color customerColor = new Color (52, 73, 94);
+		g.setColor(customerColor);
+		g.fillRect(xPos, yPos, 30, 30);
     }
 
     public boolean isPresent() {

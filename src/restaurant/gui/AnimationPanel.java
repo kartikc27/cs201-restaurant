@@ -18,7 +18,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
    
     private Image bufferImage;
     private Dimension bufferSize;
-    private int frameDisplay = 10;
+    private int frameDisplay = 5;
 
     private List<Gui> guis = new ArrayList<Gui>();
 
@@ -39,7 +39,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
-        Color tableColor = new Color(243, 156, 18);
+        Color tableColor = new Color(149, 165, 166);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	
@@ -69,12 +69,24 @@ public class AnimationPanel extends JPanel implements ActionListener {
     public void addGui(CustomerGui gui) {
         guis.add(gui);
     }
+    
+    public void removeGui(FoodGui gui) {
+    	guis.remove(gui);
+    }
 
     public void addGui(HostGui gui) {
         guis.add(gui);
     }
     
     public void addGui(WaiterGui gui) {
+    	guis.add(gui);
+    }
+    
+    public void addGui(CookGui gui) {
+    	guis.add(gui);
+    }
+    
+    public void addGui(FoodGui gui) {
     	guis.add(gui);
     }
     
