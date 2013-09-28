@@ -193,6 +193,7 @@ public class CustomerAgent extends Agent {
 	}
 
 	private void LeaveTable() {
+		customerGui.FinishFood();
 		Do("Leaving.");
 		waiter.msgDoneEatingAndLeaving(this);
 		customerGui.DoExitRestaurant();

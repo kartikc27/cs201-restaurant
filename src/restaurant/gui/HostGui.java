@@ -15,7 +15,7 @@ public class HostGui implements Gui {
 
     private HostAgent agent = null;
 
-    private int xPos = 165, yPos = 100;//default waiter position
+    private int xPos = 360, yPos = 100;//default waiter position
             
 
     public HostGui(HostAgent agent) {

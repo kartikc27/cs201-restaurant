@@ -59,7 +59,7 @@ public class FoodGui implements Gui {
 			else if (food == "Salad")
 				g.drawString("Sa", xPos+1,  yPos+13);
 			else if (food == "Chicken")
-				g.drawString("C", xPos+5,  yPos+13);
+				g.drawString("C", xPos+2,  yPos+13);
 		}
 	}
 	

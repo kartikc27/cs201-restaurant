@@ -99,6 +99,7 @@ public class WaiterAgent extends Agent {
 	}
 
 	public void msgHereIsMyChoice(String choice, CustomerAgent c) {
+		System.out.println ("choice message received");
 		orderGiven.release();
 		for (MyCustomer mc : customers)
 		{
@@ -144,7 +145,7 @@ public class WaiterAgent extends Agent {
 		atCook.release();
 		stateChanged();
 	}
-	
+
 	public void msgFoodDelivered() {
 		serveFood.release();
 		stateChanged();
@@ -167,7 +168,7 @@ public class WaiterAgent extends Agent {
 				return true;
 			}
 		}
-		
+
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.ordered) {
 				GiveOrderToCook(mc);
@@ -206,7 +207,7 @@ public class WaiterAgent extends Agent {
 		DoSeatCustomer(c.c, c.t);
 		c.c.msgFollowMe(new Menu());
 		c.c.setWaiter(this);
-		
+		atTable.drainPermits();
 		try {
 			atTable.acquire(); 
 		} catch (InterruptedException e) {
@@ -223,7 +224,7 @@ public class WaiterAgent extends Agent {
 			}
 		}
 
-		if (!readyCustomers)
+		if ((!readyCustomers) && (readyOrders.size() == 0))
 		{
 			waiterGui.DoLeaveCustomer();
 
@@ -252,7 +253,7 @@ public class WaiterAgent extends Agent {
 
 
 	private void GiveOrderToCook(MyCustomer c){
-		
+		atCook.drainPermits();
 		waiterGui.DoGoToCook();		
 		try {
 			atCook.acquire();
@@ -260,41 +261,48 @@ public class WaiterAgent extends Agent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		c.s = CustomerState.orderGiven; 
 		cook.msgHereIsAnOrder(this, c.choice, c.t);
 	}
-	
+
 
 	private void TakeFoodToCustomer()
 	{
 		for (MyCustomer mc : customers) {
 			if (readyOrders.size() > 0)
 			{
-				if (readyOrders.get(0).table == mc.t) {
-					waiterGui.DoGoToCook();		
-					try {
-						atCook.acquire();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				if (mc.s != CustomerState.done)
+				{
+					if (readyOrders.get(0).table == mc.t) {
+						waiterGui.DoGoToCook();		
+						try {
+							atCook.acquire();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						waiterGui.procureFood(mc.choice, mc.t);
+						waiterGui.DoGoToTable(mc.t); 
+						atTable.drainPermits();
+						try {
+							atTable.acquire(); 
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						serveFood.drainPermits();
+						waiterGui.DoDeliverFood(mc.t, mc.choice, mc.c.getGui());
+						try {
+							serveFood.acquire(); 
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						mc.c.msgHereIsYourFood();
+						readyOrders.remove(0);
+						waiterGui.DoLeaveCustomer();
+
 					}
-					waiterGui.procureFood(mc.choice, mc.t);
-					waiterGui.DoGoToTable(mc.t); 
-					try {
-						atTable.acquire(); 
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					waiterGui.DoDeliverFood(mc.t, mc.choice);
-					try {
-						serveFood.acquire(); 
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					mc.c.msgHereIsYourFood();
-					readyOrders.remove(0);
 				}
 			}
 		}
@@ -344,6 +352,6 @@ public class WaiterAgent extends Agent {
 		}
 	}
 
-	
+
 }
 

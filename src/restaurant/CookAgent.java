@@ -99,7 +99,7 @@ public class CookAgent extends Agent {
 
 	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
 		orders.add(new CookOrder(w, choice, table, State.pending));
-		System.out.println ("Received order of " + choice);
+		System.out.println ("Cook: received order of " + choice);
 		stateChanged();
 	}
 

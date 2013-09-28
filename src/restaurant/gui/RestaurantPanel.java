@@ -138,6 +138,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		gui.animationPanel.addGui(g);
     		c.setHost(host);
     		c.setGui(g);
+    		g.setAnimationPanel(gui.animationPanel);
     		customers.add(c);
     		c.startThread();
     	}

@@ -10,6 +10,9 @@ public class CustomerGui implements Gui{
 	private CustomerAgent agent = null;
 	private boolean isPresent = false;
 	private boolean isHungry = false;
+	private FoodGui food = null;
+	private AnimationPanel animationPanel = null;
+
 
 	//private HostAgent host;
 	RestaurantGui gui;
@@ -91,5 +94,18 @@ public class CustomerGui implements Gui{
 		xDestination = -40;
 		yDestination = -40;
 		command = Command.LeaveRestaurant;
+	}
+	
+	public void TakeFood(FoodGui food) {
+		this.food = food;
+	}
+	
+	public void setAnimationPanel(AnimationPanel ap) {
+		animationPanel = ap;
+	}
+	
+	public void FinishFood()
+	{
+		animationPanel.removeGui(food);
 	}
 }

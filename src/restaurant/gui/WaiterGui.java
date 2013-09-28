@@ -171,11 +171,12 @@ public class WaiterGui implements Gui {
 		animationPanel = ap;
 	}
 
-	public void DoDeliverFood(int t, String choice ) {
+	public void DoDeliverFood(int t, String choice, CustomerGui custGui) {
 		animationPanel.removeGui(food);
 		food = new FoodGui(this, choice, true, xPos, yPos, t);
 		animationPanel.addGui(food);
 		food.moveToTable();
+		custGui.TakeFood(food);
 	}
 
 }
