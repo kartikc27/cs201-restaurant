@@ -61,7 +61,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
     	setBounds(0,0,screenSize.width, screenSize.height);
        
 
-        Dimension restDim = new Dimension(screenSize.width, (int) (screenSize.height * .6));
+        Dimension restDim = new Dimension(screenSize.width, (int) (screenSize.height * .75));
         restPanel = new RestaurantPanel(this);
         restPanel.setPreferredSize(restDim);
         restPanel.setMinimumSize(restDim);
@@ -73,19 +73,13 @@ public class RestaurantGui extends JFrame implements ActionListener {
         InfoLayout.add(restPanel);
         
         // Now, setup the info panel
-        Dimension infoDim = new Dimension(screenSize.width, (int) (screenSize.height * .25));
+        Dimension infoDim = new Dimension(screenSize.width, (int) (screenSize.height * .22));
         infoPanel = new JPanel();
         infoPanel.setPreferredSize(infoDim);
         infoPanel.setMinimumSize(infoDim);
         infoPanel.setMaximumSize(infoDim);
         infoPanel.setBorder(BorderFactory.createTitledBorder("Information"));
 
-        myPanel = new JPanel();
-        myPanel.setBorder(BorderFactory.createTitledBorder("Me"));
-        myLabel = new JLabel();
-     
-        ImageIcon icon = new ImageIcon("res/football.png","this is a caption");
-        myLabel = new JLabel("Kartik Chillakanti", icon, JLabel.CENTER);
         
         stateCB = new JCheckBox();
         stateCB.setVisible(false);
@@ -98,11 +92,10 @@ public class RestaurantGui extends JFrame implements ActionListener {
         infoPanel.add(infoLabel);
         infoPanel.add(stateCB);
         
-        myPanel.add(myLabel);
+        
         InfoLayout.add(infoPanel);
-        InfoLayout.add(myPanel);
-                
-        setLayout(new GridLayout(1,2));
+        
+        setLayout(new GridLayout(0,2));
         
         
         //Dimension dim = new Dimension (screenSize.width/2, screenSize.height);

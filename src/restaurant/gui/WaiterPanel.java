@@ -1,7 +1,6 @@
 package restaurant.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -13,22 +12,17 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-
-import restaurant.CustomerAgent;
 
 /**
  * Subpanel of restaurantPanel.
  * This holds the scroll panes for the customers and, later, for waiters
  */
-public class ListPanel extends JPanel implements ActionListener, KeyListener{
+public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
 	
 	public static final int PANEDIM = 150;
 
@@ -46,7 +40,7 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
     private String name;
     
     public JPanel namePane = new JPanel();
-    public JCheckBox isHungry = new JCheckBox();
+   
     
 
     /**
@@ -55,7 +49,7 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
      * @param rp   reference to the restaurant panel
      * @param type indicates if this is for customers or waiters
      */
-    public ListPanel(RestaurantPanel rp, String type) {
+    public WaiterPanel(RestaurantPanel rp, String type) {
         restPanel = rp;
         this.type = type;
        
@@ -66,15 +60,10 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         nameField.setHorizontalAlignment(JTextField.CENTER);
         namePane.setLayout(new FlowLayout());
 
-        isHungry.addActionListener(this);
-        isHungry.setVisible(true);
-        isHungry.setText("Hungry?");
-
         //add(Box.createRigidArea(new Dimension(0, 35)));
         
         namePane.add(addPersonB);
         namePane.add(nameField);
-        namePane.add(isHungry);
         
         nameField.addKeyListener(this);
 
@@ -82,12 +71,11 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         pane.setViewportView(view);
         
         pane.setMinimumSize(new Dimension(PANEDIM, PANEDIM));
-        pane.setPreferredSize(new Dimension(PANEDIM, PANEDIM)); 
+        pane.setPreferredSize(new Dimension(PANEDIM, PANEDIM));  
         
         add(namePane);
         add(pane);
         
-        isHungry.setEnabled(false);
         addPersonB.setEnabled(false);
     }
     
@@ -95,7 +83,6 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
     public void keyTyped(KeyEvent e) {
     	name = nameField.getText();
     	if ((name != null) && !name.isEmpty()){
-    		isHungry.setEnabled(true);
             addPersonB.setEnabled(true);
     	}
     }
@@ -114,22 +101,10 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         	
         	if (name != null && !name.isEmpty()){
         		addPerson(name);
-        		isHungry.setEnabled(false);
-                addPersonB.setEnabled(false);
-        		if (isHungry.isSelected())
-        		{
-        			isHungry.setSelected(false);
-        			restPanel.markHungry(name);
-        			restPanel.showInfo(type, name);
-        		}
-        		
+                addPersonB.setEnabled(false);	
         	}
-        	
         }
         else {
-        	// Isn't the second for loop more beautiful?
-            /*for (int i = 0; i < list.size(); i++) {
-                JButton temp = list.get(i);*/
         	for (JButton temp:list){
                 if (e.getSource() == temp)
                     restPanel.showInfo(type, temp.getText());
@@ -160,8 +135,8 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
             button.addActionListener(this);
             list.add(button);
             view.add(button);
-            restPanel.addPerson(type, name);//puts customer on list
-            restPanel.showInfo(type, name);//puts hungry button on panel
+            restPanel.addPerson(type, name);//puts waiter on list
+            //restPanel.showInfo(type, name);//puts hungry button on panel
             validate();
         }
     }

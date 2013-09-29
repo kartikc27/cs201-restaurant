@@ -1,11 +1,15 @@
 package restaurant.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -29,16 +33,19 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     
     private RestaurantGui gui; //reference to main gui
     
-    private WaiterAgent waiter = new WaiterAgent("Kartik");
-    private WaiterGui waiterGui = new WaiterGui(waiter);
+    //private WaiterAgent waiter = new WaiterAgent("Kartik");
+    //private WaiterGui waiterGui = new WaiterGui(waiter);
     
     private CookAgent cook = new CookAgent("Sarah"); 
     private CookGui cookGui = new CookGui(cook);
 
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
+    private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
+
 
     private JPanel restLabel = new JPanel();
     private ListPanel customerPanel = new ListPanel(this, "Customers");
+    private WaiterPanel waiterPanel = new WaiterPanel(this, "Waiters");
     private JPanel group = new JPanel();
     private JButton b1;
     
@@ -49,34 +56,46 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     public RestaurantPanel(RestaurantGui gui) {
         this.gui = gui;
         host.setGui(hostGui);
-        waiter.setGui(waiterGui);
-        waiter.setCook(cook);
-        waiter.setHost(host);
-        waiterGui.setAnimationPanel(gui.animationPanel);
+        //waiter.setGui(waiterGui);
+        //waiter.setCook(cook);
+        //waiter.setHost(host);
+        //waiterGui.setAnimationPanel(gui.animationPanel);
                 
-        host.addWaiter(waiter);
+        //host.addWaiter(waiter);
 
         gui.animationPanel.addGui(hostGui);
         host.startThread();
         
-        gui.animationPanel.addGui(waiterGui);
-        waiter.startThread();
+        //gui.animationPanel.addGui(waiterGui);
+        //waiter.startThread();
         
         gui.animationPanel.addGui(cookGui);
         cook.setGui(cookGui);
         cook.startThread();
 
-        setLayout(new BorderLayout(20, 20));
-        group.setLayout(new BorderLayout(10, 10));
+        //setLayout(new BorderLayout(20, 20));
+        //group.setLayout(new BorderLayout(10, 10));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
 
         group.add(customerPanel);
         TitledBorder title = BorderFactory.createTitledBorder("Customers");
         title.setTitleJustification(TitledBorder.CENTER);
-        group.setBorder(title);
+        customerPanel.setBorder(title);
+        group.add(Box.createRigidArea(new Dimension(0, 25)));
+        group.add(waiterPanel);
+        TitledBorder title2 = BorderFactory.createTitledBorder("Waiters");
+        title2.setTitleJustification(TitledBorder.CENTER);
+        waiterPanel.setBorder(title2);
+        
+        
         
         initRestLabel();
-        add(restLabel, BorderLayout.NORTH);
-        add(group, BorderLayout.CENTER);
+        //restLabel.setPreferredSize(new Dimension (190, 100));
+        restLabel.setMaximumSize(new Dimension(1000, 350));
+        add(restLabel/*, BorderLayout.NORTH*/);
+        add(Box.createRigidArea(new Dimension(0, 25)));
+        add(group/*, BorderLayout.CENTER*/);
     }
 
     /**
@@ -87,6 +106,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         JLabel label = new JLabel();
         //restLabel.setLayout(new BoxLayout((Container)restLabel, BoxLayout.Y_AXIS));
         restLabel.setLayout(new BorderLayout());
+        
         label.setText(
                 "<html><h3><u>Tonight's Staff</u></h3><table><tr><td>Host:</td><td>" + host.getName() + "</td></tr></table><h3><u> Menu</u></h3><table><tr><td>Steak</td><td>$15.99</td></tr><tr><td>Chicken</td><td>$10.99</td></tr><tr><td>Salad</td><td>$5.99</td></tr><tr><td>Pizza</td><td>$8.99</td></tr></table><br></html>");
 
@@ -142,6 +162,25 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		customers.add(c);
     		c.startThread();
     	}
+    	
+    	if (type.equals("Waiters")) {
+    		System.out.println ("adding waiter");
+    		WaiterAgent w = new WaiterAgent(name);	
+    		WaiterGui g = new WaiterGui(w);
+    		w.setGui(g);
+    		w.setCook(cook);
+    		w.setHost(host);
+    		host.addWaiter(w);
+    		g.setAnimationPanel(gui.animationPanel);
+    		gui.animationPanel.addGui(g);
+    		w.startThread();
+    		
+    		 //gui.animationPanel.addGui(waiterGui);
+            //waiter.startThread();
+    		
+    		
+    	
+    	}
     }
     
     public void markHungry(String name)
@@ -163,7 +202,9 @@ public class RestaurantPanel extends JPanel implements ActionListener {
 			c.msgPause();
 		}
 		host.msgPause();
-		waiter.msgPause();
+		for (WaiterAgent w : waiters) {
+			w.msgPause();
+		}
 		isPaused = !isPaused;
 		if (isPaused) {b1.setText("Unpause");}
 		else {b1.setText("Pause");}
