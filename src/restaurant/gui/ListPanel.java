@@ -127,9 +127,6 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         	
         }
         else {
-        	// Isn't the second for loop more beautiful?
-            /*for (int i = 0; i < list.size(); i++) {
-                JButton temp = list.get(i);*/
         	for (JButton temp:list){
                 if (e.getSource() == temp)
                     restPanel.showInfo(type, temp.getText());

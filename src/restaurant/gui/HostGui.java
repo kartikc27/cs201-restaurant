@@ -1,21 +1,18 @@
 package restaurant.gui;
 
 
-import restaurant.CustomerAgent;
-import restaurant.HostAgent;
-import restaurant.WaiterAgent;
-
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
+import java.awt.Graphics2D;
+import java.awt.Image;
 
 import javax.swing.ImageIcon;
+
+import restaurant.HostAgent;
 
 public class HostGui implements Gui {
 
     private HostAgent agent = null;
 
-    private int xPos = 360, yPos = 100;//default waiter position
+    private int xPos = 365, yPos = 100;//default waiter position
             
 
     public HostGui(HostAgent agent) {

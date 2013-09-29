@@ -1,14 +1,12 @@
 package agent;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Semaphore;
 
 /**
  * Base class for simple agents
  */
 public abstract class Agent {
-	Semaphore stateChange = new Semaphore(1, true);//binary semaphore, fair
+	Semaphore stateChange = new Semaphore(1, true); 
 	Semaphore pause = new Semaphore(0, true);
 	boolean isPaused = false;
 	private AgentThread agentThread;
@@ -89,17 +87,16 @@ public abstract class Agent {
 	public synchronized void startThread() {
 		if (agentThread == null) {
 			agentThread = new AgentThread(getName());
-			agentThread.start(); // causes the run method to execute in the AgentThread below
+			agentThread.start(); 
 		} else {
-			agentThread.interrupt();//don't worry about this for now
+			agentThread.interrupt(); // don't worry about this for now
 		}
 	}
 
 	/**
 	 * Stop agent scheduler thread.
 	 */
-	//In this implementation, nothing calls stopThread().
-	//When we have a user interface to agents, this can be called.
+	
 	public void stopThread() {
 		if (agentThread != null) {
 			agentThread.stopAgent();
@@ -126,21 +123,13 @@ public abstract class Agent {
 					try {
 						pause.acquire();
 					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
 				try {
-					// The agent sleeps here until someone calls, stateChanged(),
-					// which causes a call to stateChange.give(), which wakes up agent.
-					stateChange.acquire();
-					//The next while clause is the key to the control flow.
-					//When the agent wakes up it will call respondToStateChange()
-					//repeatedly until it returns FALSE.
-					//You will see that pickAndExecuteAnAction() is the agent scheduler.
+					stateChange.acquire();					
 					while (pickAndExecuteAnAction()) ;
 				} catch (InterruptedException e) {
-					// no action - expected when stopping or when deadline changed
 				} catch (Exception e) {
 					print("Unexpected exception caught in Agent thread:", e);
 				}

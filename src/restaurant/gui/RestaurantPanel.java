@@ -2,7 +2,6 @@ package restaurant.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -48,6 +47,8 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     private WaiterPanel waiterPanel = new WaiterPanel(this, "Waiters");
     private JPanel group = new JPanel();
     private JButton b1;
+    private int MaxRestLabelX = 1000;
+    private int MaxRestLabelY = 350;
     
 
 
@@ -92,7 +93,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         
         initRestLabel();
         //restLabel.setPreferredSize(new Dimension (190, 100));
-        restLabel.setMaximumSize(new Dimension(1000, 350));
+        restLabel.setMaximumSize(new Dimension(MaxRestLabelX, MaxRestLabelY));
         add(restLabel/*, BorderLayout.NORTH*/);
         add(Box.createRigidArea(new Dimension(0, 25)));
         add(group/*, BorderLayout.CENTER*/);

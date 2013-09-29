@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import restaurant.WaiterAgent.CustomerState;
 import restaurant.gui.HostGui;
 import agent.Agent;
 
@@ -31,6 +30,8 @@ public class HostAgent extends Agent {
 	public boolean isFree = false;
 
 	public HostGui hostGui = null;
+	
+	private Semaphore seatCustomer = new Semaphore(0, true);
 
 	private class MyWaiter {
 		public MyWaiter(WaiterAgent w, int nTables) {
@@ -46,16 +47,11 @@ public class HostAgent extends Agent {
 	public HostAgent(String name) {
 		super();
 		this.name = name;
-		// make some tables
 		tables = new ArrayList<Table>(NTABLES);
 		for (int ix = 1; ix <= NTABLES; ix++) {
 			tables.add(new Table(ix));//how you add to a collections
 		}
 	}
-
-	/*public String getMaitreDName() {
-		return name;
-	}*/
 
 	public String getName() {
 		return name;
@@ -85,31 +81,10 @@ public class HostAgent extends Agent {
 		}
 	}
 
-	/*public void msgLeavingTable(CustomerAgent cust) {
-		for (Table table : tables) {
-			if (table.getOccupant() == cust) {
-				print(cust + " leaving " + table);
-				table.setUnoccupied();
-				stateChanged();
-			}
-		}
-	}
-
-	public void msgAtTable() {//from animation
-		//print("msgAtTable() called");
-		s.release();// = true;
-		stateChanged();
-	}*/
-
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
 	 */
 	protected boolean pickAndExecuteAnAction() {
-		/* Think of this next rule as:
-            Does there exist a table and customer,
-            so that table is unoccupied and customer is waiting.
-            If so seat him at the table.
-		 */
 		if (!waiters.isEmpty())
 		{
 			for (Table table : tables) {
@@ -126,23 +101,30 @@ public class HostAgent extends Agent {
 							}
 							i++;
 						}
+						waiters.get(WaiterWithMinTables).numTables++;
+						for (MyWaiter mw : waiters) {
+							System.out.println("A. " + mw.waiter.getName() + " " + mw.numTables);
+						}
+						
+						
 						tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
-						//waitingCustomers.get(0).setWaiter(waiters.get(WaiterWithMinTables).waiter);
-						//tellWaiterToSeatCustomer(mw, table, waiters.get(WaiterWithMinTables).waiter);
-						// get removes the first customer in waitingCustomers
-						//waitingCustomers.get(0).setWaiter(waiters.get(WaiterWithMinTables).waiter);
-
+						try {
+							seatCustomer.acquire();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						return true;
 					}
 				}
 			}
 		}
-
+		else 
+		{
+			return true;
+		}
 
 		return false;
-		//we have tried all our rules and found
-		//nothing to do. So return false to main loop of abstract agent
-		//and wait.
 	}
 
 	// Actions
@@ -152,11 +134,6 @@ public class HostAgent extends Agent {
 		table.setOccupant(customer);
 		waitingCustomers.remove(customer);
 		table.setOccupant(customer);
-		for (MyWaiter mw : waiters) {
-			if (waiter.getName() == mw.waiter.getName()) {
-				mw.numTables++;
-			}
-		}
 	}
 
 	//utilities
@@ -170,6 +147,7 @@ public class HostAgent extends Agent {
 	}
 
 	public void addWaiter(WaiterAgent w) {
+		//thread.sleep(500);
 		waiters.add((new MyWaiter(w, 0)));
 		for (MyWaiter mw : waiters) {
 			System.out.println (mw.waiter.getName());
@@ -203,6 +181,10 @@ public class HostAgent extends Agent {
 		public String toString() {
 			return "table " + tableNumber;
 		}
+	}
+
+	public void msgCustomerSeated() {
+		seatCustomer.release();
 	}
 }
 

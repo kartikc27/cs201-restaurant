@@ -17,7 +17,7 @@ import javax.swing.ImageIcon;
 
 public class WaiterGui implements Gui {
 
-	class Location {
+	public static class Location {
 		public Location (int x, int y) {
 			this.setX(x);
 			this.y = y;
@@ -42,6 +42,8 @@ public class WaiterGui implements Gui {
 
 	protected WaiterAgent agent = null;
 	private FoodGui food = null;
+	private int CookX = 540;
+	private int CookY = 140;
 	
 
 
@@ -102,7 +104,7 @@ public class WaiterGui implements Gui {
 			}
 		}    
 
-		if ((xPos == 540) && (yPos == 140) && (xDestination == 540) && (yDestination == 140)){ //hack
+		if ((xPos == CookX) && (yPos == CookY) && (xDestination == CookX) && (yDestination == CookY)){ //hack
 			agent.msgAtCook();
 		}
 
@@ -143,8 +145,8 @@ public class WaiterGui implements Gui {
 	}
 	public void DoGoToCook()
 	{
-		xDestination = 540; // hack
-		yDestination = 140; // hack
+		xDestination = CookX; 
+		yDestination = CookY; 
 	}
 
 	public void DoLeaveCustomer() {

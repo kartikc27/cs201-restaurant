@@ -1,7 +1,6 @@
 package restaurant.gui;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -135,8 +134,7 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
             button.addActionListener(this);
             list.add(button);
             view.add(button);
-            restPanel.addPerson(type, name);//puts waiter on list
-            //restPanel.showInfo(type, name);//puts hungry button on panel
+            restPanel.addPerson(type, name);
             validate();
         }
     }

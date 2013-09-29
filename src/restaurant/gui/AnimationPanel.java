@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import restaurant.gui.WaiterGui;
+import restaurant.gui.WaiterGui.Location;
 
 public class AnimationPanel extends JPanel implements ActionListener {
 
@@ -31,6 +32,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
  
     	Timer timer = new Timer(frameDisplay, this );
     	timer.start();
+    	
     }
 
 	public void actionPerformed(ActionEvent e) {
@@ -46,10 +48,11 @@ public class AnimationPanel extends JPanel implements ActionListener {
         //Clear the screen by painting a rectangle the size of the frame
         g2.setColor(getBackground());
         g2.fillRect(0, 0, screenSize.width/2, screenSize.height );
-        
-        for (int i = 0; i < WaiterGui.locations.size(); i++) {
+        int n = 150;
+        for (int i = 0; i < 3; i++) {
         	g2.setColor(tableColor);
-            g2.fillRect(WaiterGui.locations.get(i).getX(), WaiterGui.locations.get(i).getY(), 75, 75);
+            g2.fillRect(n, 550, 75, 75);
+            n += 200;
         }
         
        

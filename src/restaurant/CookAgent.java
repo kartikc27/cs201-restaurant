@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -14,6 +15,7 @@ import agent.Agent;
  */
 
 public class CookAgent extends Agent {
+	private Map<String, Integer> foodMap = new HashMap();
 
 
 	enum State {pending, cooking, done, sent};
@@ -50,6 +52,10 @@ public class CookAgent extends Agent {
 	public CookAgent(String name) {
 		super();
 		this.name = name;
+		foodMap.put("Steak", 5); 
+		foodMap.put("Salad", 2);  
+		foodMap.put("Pizza", 4);  
+		foodMap.put("Chicken", 3);
 	}
 
 	public void setGui(CookGui gui) {
@@ -60,7 +66,6 @@ public class CookAgent extends Agent {
 	@Override
 	protected boolean pickAndExecuteAnAction() {
 
-		// an incoming order should not come while these orders are being processed. 
 		if (!orders.isEmpty())
 		{
 
@@ -91,8 +96,6 @@ public class CookAgent extends Agent {
 
 			return true;
 		}
-
-
 		return false;
 	}
 
@@ -117,7 +120,6 @@ public class CookAgent extends Agent {
 		o.state = State.cooking;
 		CookFood(o.choice);
 		System.out.println("Done cooking " + o.choice);
-		//FoodDone();
 		stateChanged();
 	}
 
@@ -129,21 +131,14 @@ public class CookAgent extends Agent {
 
 	private void CookFood(final String choice) {
 		Do("Cooking Food");
-		//This next complicated line creates and starts a timer thread.
-		//We schedule a deadline of getHungerLevel()*1000 milliseconds.
-		//When that time elapses, it will call back to the run routine
-		//located in the anonymous class created right there inline:
-		//TimerTask is an interface that we implement right there inline.
-		//Since Java does not all us to pass functions, only objects.
-		//So, we use Java syntactic mechanism to create an
-		//anonymous inner class that has the public method run() in it.
 		timer1.schedule(new TimerTask() {
 			public void run() {
 				print("Done cooking " + choice );
 				FoodDone(choice);
 			}
 		},
-		1000);
+		foodMap.get(choice)*1000);
+		System.out.println(foodMap.get(choice));
 	}
 }
 
