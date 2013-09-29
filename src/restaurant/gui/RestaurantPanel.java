@@ -57,25 +57,16 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     public RestaurantPanel(RestaurantGui gui) {
         this.gui = gui;
         host.setGui(hostGui);
-        //waiter.setGui(waiterGui);
-        //waiter.setCook(cook);
-        //waiter.setHost(host);
-        //waiterGui.setAnimationPanel(gui.animationPanel);
-                
-        //host.addWaiter(waiter);
+        
 
         gui.animationPanel.addGui(hostGui);
         host.startThread();
         
-        //gui.animationPanel.addGui(waiterGui);
-        //waiter.startThread();
         
         gui.animationPanel.addGui(cookGui);
         cook.setGui(cookGui);
         cook.startThread();
 
-        //setLayout(new BorderLayout(20, 20));
-        //group.setLayout(new BorderLayout(10, 10));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
 
@@ -155,7 +146,6 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     	if (type.equals("Customers")) {
     		CustomerAgent c = new CustomerAgent(name);	
     		CustomerGui g = new CustomerGui(c, gui);
-
     		gui.animationPanel.addGui(g);
     		c.setHost(host);
     		c.setGui(g);

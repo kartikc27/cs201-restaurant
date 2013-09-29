@@ -22,7 +22,7 @@ public class CookAgent extends Agent {
 	String name;
 	boolean busy = false;
 	public CookGui cookGui = null;
-	Timer timer1 = new Timer();
+	Timer timer = new Timer();
 
 	class CookOrder {
 		WaiterAgent waiter;
@@ -46,7 +46,6 @@ public class CookAgent extends Agent {
 
 	private List<CookOrder> orders = new ArrayList<CookOrder>();
 
-	Timer timer;
 	Map <String , Food> foods;
 
 	public CookAgent(String name) {
@@ -72,25 +71,19 @@ public class CookAgent extends Agent {
 			for (CookOrder o : orders){
 				if (o.state == State.done) {
 					PlateIt(o);
-					break;
+					
 				}
-
+				break;
 
 			}
 
 			for (CookOrder o : orders){
 				if (o.state == State.pending) {
 					CookIt(o);
-					break;
+					o.state = State.cooking;
+					
 				}
-
-			}
-
-			for (CookOrder o : orders){
-				if (o.state == State.sent) {
-					orders.remove(o);
-					break;
-				}
+				break;
 
 			}
 
@@ -113,32 +106,28 @@ public class CookAgent extends Agent {
 			}
 			break;
 		}
-		stateChanged();
 	}
 
 	private void CookIt(CookOrder o){
-		o.state = State.cooking;
+		
 		CookFood(o.choice);
-		System.out.println("Done cooking " + o.choice);
-		stateChanged();
+		
 	}
 
 	private void PlateIt(CookOrder o) {
-		o.state = State.sent;
 		o.waiter.msgOrderIsReady(o.choice, o.table); 
+		orders.remove(o);
 	}
 
-
+//receives message twice...
 	private void CookFood(final String choice) {
-		Do("Cooking Food");
-		timer1.schedule(new TimerTask() {
+		timer.schedule(new TimerTask() {
 			public void run() {
 				print("Done cooking " + choice );
 				FoodDone(choice);
 			}
 		},
 		foodMap.get(choice)*1000);
-		System.out.println(foodMap.get(choice));
 	}
 }
 

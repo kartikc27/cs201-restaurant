@@ -93,6 +93,5 @@ public class AnimationPanel extends JPanel implements ActionListener {
     	guis.add(gui);
     }
     
-    //public void addTable
-    // pass table location information to the HostGui?
+   
 }

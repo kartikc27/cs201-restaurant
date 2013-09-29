@@ -102,11 +102,6 @@ public class HostAgent extends Agent {
 							i++;
 						}
 						waiters.get(WaiterWithMinTables).numTables++;
-						for (MyWaiter mw : waiters) {
-							System.out.println("A. " + mw.waiter.getName() + " " + mw.numTables);
-						}
-						
-						
 						tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
 						try {
 							seatCustomer.acquire();
@@ -119,11 +114,11 @@ public class HostAgent extends Agent {
 				}
 			}
 		}
-		else 
-		{
+		else {
+			stateChanged();
 			return true;
 		}
-
+		
 		return false;
 	}
 
@@ -147,11 +142,7 @@ public class HostAgent extends Agent {
 	}
 
 	public void addWaiter(WaiterAgent w) {
-		//thread.sleep(500);
 		waiters.add((new MyWaiter(w, 0)));
-		for (MyWaiter mw : waiters) {
-			System.out.println (mw.waiter.getName());
-		}
 	}
 
 	private class Table {

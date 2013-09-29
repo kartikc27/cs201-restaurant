@@ -12,7 +12,7 @@ import agent.Agent;
  */
 public class CustomerAgent extends Agent {
 	private String name;
-	private int hungerLevel = 5;        // determines length of meal
+	private int hungerLevel = 5; // determines length of meal
 	Timer timer = new Timer();
 	private CustomerGui customerGui;
 
@@ -22,7 +22,6 @@ public class CustomerAgent extends Agent {
 
 	private Menu myMenu;
 
-	//    private boolean isHungry = false; //hack for gui
 	public enum AgentState
 	{DoingNothing, WaitingInRestaurant, BeingSeated, Seated, OrderingFood, DoneOrdering, Eating, DoneEating, Leaving};
 	private AgentState state = AgentState.DoingNothing;//The start state
@@ -100,7 +99,6 @@ public class CustomerAgent extends Agent {
 	protected boolean pickAndExecuteAnAction() {
 		//	CustomerAgent is a finite state machine
 
-		
 		if (state == AgentState.DoingNothing && event == AgentEvent.gotHungry ){
 			state = AgentState.WaitingInRestaurant;
 			GoToRestaurant();
@@ -172,20 +170,10 @@ public class CustomerAgent extends Agent {
 
 	private void EatFood() {
 		Do("Eating Food");
-		//This next complicated line creates and starts a timer thread.
-		//We schedule a deadline of getHungerLevel()*1000 milliseconds.
-		//When that time elapses, it will call back to the run routine
-		//located in the anonymous class created right there inline:
-		//TimerTask is an interface that we implement right there inline.
-		//Since Java does not all us to pass functions, only objects.
-		//So, we use Java syntactic mechanism to create an
-		//anonymous inner class that has the public method run() in it.
 		timer.schedule(new TimerTask() {
-			Object cookie = 1;
 			public void run() {
-				print("Done eating, cookie=" + cookie);
+				print("Done eating");
 				event = AgentEvent.doneEating;
-				//isHungry = false;
 				stateChanged();
 			}
 		},

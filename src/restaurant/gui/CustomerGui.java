@@ -91,8 +91,8 @@ public class CustomerGui implements Gui{
 	}
 
 	public void DoExitRestaurant() {
-		xDestination = -40;
-		yDestination = -40;
+		xDestination = -70;
+		yDestination = -70;
 		command = Command.LeaveRestaurant;
 	}
 	
@@ -107,5 +107,6 @@ public class CustomerGui implements Gui{
 	public void FinishFood()
 	{
 		animationPanel.removeGui(food);
+		food = null;
 	}
 }
