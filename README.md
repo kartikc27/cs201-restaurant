@@ -9,7 +9,11 @@ customer exists
 
 ###General Notes
 
-No known errors...
+No known errors other than ConcurrentModificationExceptions whenever Food objects are created and removed. 
+
+Print statements in the console give a more detailed look at what is going. 
+
+The speed of the animation can be changed by increasing the frameDisplay variable in AnimationPanel.java
 
 ####Host Agent
 
@@ -19,7 +23,9 @@ an active role in assigning waiters to customers and managing tables.
 ####Customer Agent
 
 A customer agent is indicated by a green square. A customer can be set to hungry at the point of creation or 
-later by clicking his/her respective button and selecting the hungry checkbox.
+later by clicking his/her respective button and selecting the hungry checkbox. The customer is seated by a waiter,
+calls the waiter to give his/her order, receives food from a waiter, eats the food, and leaves the table after informing
+a waiter. 
 
 ####Waiter Agent
 
