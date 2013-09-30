@@ -29,8 +29,8 @@ public class WaiterAgent extends Agent {
 	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done};
 
 	private class MyCustomer {
-		public MyCustomer(CustomerAgent cust, int table, CustomerState state) {
-			c = cust;
+		public MyCustomer(CustomerAgent customer, int table, CustomerState state) {
+			c = customer;
 			t = table;
 			s = state;
 
