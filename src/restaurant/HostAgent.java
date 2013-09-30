@@ -26,9 +26,6 @@ public class HostAgent extends Agent {
 
 	private String name;
 
-
-	public boolean isFree = false;
-
 	public HostGui hostGui = null;
 	
 	private Semaphore seatCustomer = new Semaphore(0, true);
@@ -128,7 +125,6 @@ public class HostAgent extends Agent {
 		waiter.msgSitAtTable(customer, table.tableNumber);
 		table.setOccupant(customer);
 		waitingCustomers.remove(customer);
-		table.setOccupant(customer);
 	}
 
 	//utilities

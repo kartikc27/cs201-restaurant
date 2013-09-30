@@ -23,7 +23,7 @@ public class CustomerAgent extends Agent {
 	private Menu myMenu;
 
 	public enum AgentState
-	{DoingNothing, WaitingInRestaurant, BeingSeated, Seated, OrderingFood, DoneOrdering, Eating, DoneEating, Leaving};
+	{DoingNothing, WaitingInRestaurant, BeingSeated, OrderingFood, DoneOrdering, Eating, DoneEating, Leaving};
 	private AgentState state = AgentState.DoingNothing;//The start state
 
 	public enum AgentEvent 

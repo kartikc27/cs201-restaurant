@@ -64,34 +64,25 @@ public class CookAgent extends Agent {
 
 	@Override
 	protected boolean pickAndExecuteAnAction() {
-
 		if (!orders.isEmpty())
 		{
-
 			for (CookOrder o : orders){
 				if (o.state == State.done) {
-					PlateIt(o);
-					
+					PlateIt(o);	
 				}
 				break;
-
 			}
-
 			for (CookOrder o : orders){
 				if (o.state == State.pending) {
 					CookIt(o);
 					o.state = State.cooking;
-					
 				}
 				break;
-
 			}
-
 			return true;
 		}
 		return false;
 	}
-
 
 	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
 		orders.add(new CookOrder(w, choice, table, State.pending));
@@ -99,19 +90,11 @@ public class CookAgent extends Agent {
 		stateChanged();
 	}
 
-	public void FoodDone(String choice) {
-		for (CookOrder o : orders){
-			if (o.choice == choice) {
-				o.state = State.done;
-			}
-			break;
-		}
-	}
+	// Utility function that marks the order as done
+
 
 	private void CookIt(CookOrder o){
-		
 		CookFood(o.choice);
-		
 	}
 
 	private void PlateIt(CookOrder o) {
@@ -119,15 +102,26 @@ public class CookAgent extends Agent {
 		orders.remove(o);
 	}
 
-//receives message twice...
+	//receives message twice...
 	private void CookFood(final String choice) {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				print("Done cooking " + choice );
-				FoodDone(choice);
+				markFoodDone(choice);
 			}
 		},
 		foodMap.get(choice)*1000);
 	}
+
+	public void markFoodDone(String choice) {
+		for (CookOrder o : orders){
+			if (o.choice == choice) {
+				o.state = State.done;
+			}
+			break;
+		}
+		stateChanged();
+	}
+
 }
 

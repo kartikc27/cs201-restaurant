@@ -99,7 +99,6 @@ public class WaiterAgent extends Agent {
 	}
 
 	public void msgHereIsMyChoice(String choice, CustomerAgent c) {
-		System.out.println ("choice message received");
 		orderGiven.release();
 		for (MyCustomer mc : customers)
 		{
@@ -155,7 +154,8 @@ public class WaiterAgent extends Agent {
 	 * @return 
 	 */
 	protected boolean pickAndExecuteAnAction() {
-
+		
+		// agent sleeps until order is given
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.asked) {
 				try {
@@ -171,7 +171,6 @@ public class WaiterAgent extends Agent {
 		for (MyCustomer mc : customers) {
 			if (mc.s == CustomerState.ordered) {
 				GiveOrderToCook(mc);
-				mc.s = CustomerState.orderGiven;
 				return true;
 			}
 			
@@ -253,6 +252,7 @@ public class WaiterAgent extends Agent {
 
 
 	private void GiveOrderToCook(MyCustomer c){
+		c.s = CustomerState.orderGiven;
 		atCook.drainPermits();
 		waiterGui.DoGoToCook();		
 		try {
