@@ -2,10 +2,9 @@
 
 ###Instructions
 
-1. Run the Java Application
-2. Enter Customer and Waiter information. Nothing will show on the Animation Panel unless at least 1 waiter and 1 hungry 
-customer exists
-3. Add Customers and Waiters 
+1. Clone repo: git clone git@github.com:usc-csci201-fall2013/restaurant_chillaka.git
+2. Open project: File > New > Other > Java Project from Existing Ant Buildfile. Select the build.xml file from the cloned repo
+3. Run the project as a Java Application 
 
 ###General Notes
 
