@@ -27,7 +27,7 @@ public class CustomerAgent extends Agent {
 	private AgentState state = AgentState.DoingNothing;//The start state
 
 	public enum AgentEvent 
-	{none, gotHungry, followWaiter, seated, order, foodReceived, doneEating, doneLeaving};
+	{none, gotHungry, followWaiter, seated, order, foodReceived, foodUnavailable, doneEating, doneLeaving};
 	AgentEvent event = AgentEvent.none;
 
 	/**
@@ -81,17 +81,25 @@ public class CustomerAgent extends Agent {
 		event = AgentEvent.foodReceived;
 		stateChanged();
 	}
+	
+	public void msgFoodUnavailable() {
+		print ("Received msgFoodUnavailable");
+		event = AgentEvent.foodUnavailable;
+		stateChanged();
+	}
 
 	public void msgAnimationFinishedGoToSeat() {
 		//from animation
 		event = AgentEvent.seated;
 		stateChanged();
 	}
+	
 	public void msgAnimationFinishedLeaveRestaurant() {
 		//from animation
 		event = AgentEvent.doneLeaving;
 		stateChanged();
 	}
+	
 
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
@@ -126,6 +134,12 @@ public class CustomerAgent extends Agent {
 		if (state == AgentState.DoneOrdering && event == AgentEvent.foodReceived){
 			state = AgentState.Eating;
 			EatFood();
+			return true;
+		}
+		
+		if (state == AgentState.DoneOrdering && event == AgentEvent.foodUnavailable){
+			state = AgentState.Leaving;
+			LeaveTable();
 			return true;
 		}
 
@@ -165,7 +179,9 @@ public class CustomerAgent extends Agent {
 		int randomInt = randomGenerator.nextInt(4);
 		String choice = myMenu.menuItems[randomInt];
 		waiter.msgHereIsMyChoice(choice, this);
-		Do ("I would like to order " + choice); 
+		/*String choice = name;
+		waiter.msgHereIsMyChoice(choice, this);
+		Do ("I would like to order " + choice); */
 	}
 
 	private void EatFood() {

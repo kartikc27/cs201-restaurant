@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,10 +36,11 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
     private JTextField nameField = new JTextField(10);
 
     private RestaurantPanel restPanel;
-    private String type;
+    private String type = "Waiters";
     private String name;
-    
+    public JCheckBox wantBreak = new JCheckBox();
     public JPanel namePane = new JPanel();
+
    
     
 
@@ -59,10 +61,15 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
         nameField.setHorizontalAlignment(JTextField.CENTER);
         namePane.setLayout(new FlowLayout());
 
+        wantBreak.addActionListener(this);
+        wantBreak.setVisible(true);
+        wantBreak.setText("Break?");
+
         //add(Box.createRigidArea(new Dimension(0, 35)));
         
         namePane.add(addPersonB);
         namePane.add(nameField);
+        namePane.add(wantBreak);
         
         nameField.addKeyListener(this);
 
@@ -100,13 +107,21 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
         	
         	if (name != null && !name.isEmpty()){
         		addPerson(name);
-                addPersonB.setEnabled(false);	
+                addPersonB.setEnabled(false);
+                wantBreak.setEnabled(false);
+                addPersonB.setEnabled(false);
+        		if (wantBreak.isSelected())
+        		{
+        			wantBreak.setSelected(false);
+        			restPanel.markBreak(name);
+        			restPanel.showInfo(type, name);
+        		}
         	}
         }
         else {
         	for (JButton temp:list){
                 if (e.getSource() == temp)
-                    restPanel.showInfo(type, temp.getText());
+                    restPanel.showInfo("Waiters", temp.getText());
             }
         }
     }
@@ -135,6 +150,7 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
             list.add(button);
             view.add(button);
             restPanel.addPerson(type, name);
+            restPanel.showInfo(type, name);//puts hungry button on panel
             validate();
         }
     }

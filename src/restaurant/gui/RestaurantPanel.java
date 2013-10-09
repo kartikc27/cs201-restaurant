@@ -133,6 +133,16 @@ public class RestaurantPanel extends JPanel implements ActionListener {
                     gui.updateInfoPanel(temp);
             }
         }
+        else if (type.equals("Waiters")) {
+        	System.out.println ("Trying to show info " + waiters.size());
+            for (int i = 0; i < waiters.size(); i++) {
+                WaiterAgent temp = waiters.get(i);
+                if (temp.getName() == name) {
+                	System.out.println ("Trying to show info 2");
+                    gui.updateInfoPanel(temp);
+                }
+            }
+        }
     }
 
     /**
@@ -158,6 +168,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		System.out.println ("adding waiter");
     		WaiterAgent w = new WaiterAgent(name);	
     		WaiterGui g = new WaiterGui(w);
+    		waiters.add(w);
     		w.setGui(g);
     		w.setCook(cook);
     		w.setHost(host);
@@ -165,12 +176,6 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		g.setAnimationPanel(gui.animationPanel);
     		gui.animationPanel.addGui(g);
     		w.startThread();
-    		
-    		 //gui.animationPanel.addGui(waiterGui);
-            //waiter.startThread();
-    		
-    		
-    	
     	}
     }
     
@@ -182,6 +187,18 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		 if (temp.getName() == name)
     		 {
     			  temp.getGui().setHungry();
+    		 }
+    	}	
+    }
+    
+    public void markBreak(String name)
+    {
+    	for (int i = 0; i < waiters.size(); i++)
+    	{
+    		 WaiterAgent temp = waiters.get(i);
+    		 if (temp.getName() == name)
+    		 {
+    			  temp.getGui().setBreak();
     		 }
     	}	
     }

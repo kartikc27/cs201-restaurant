@@ -40,7 +40,7 @@ public class HostGui implements Gui {
     public int getYPos() {
         return yPos;
     }
-
+    
 
 	@Override
 	public void updatePosition() {

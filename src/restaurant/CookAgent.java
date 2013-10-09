@@ -15,7 +15,7 @@ import agent.Agent;
  */
 
 public class CookAgent extends Agent {
-	private Map<String, Integer> foodMap = new HashMap();
+	private Map<String, Food> foodMap = new HashMap();
 
 
 	enum State {pending, cooking, done, sent};
@@ -40,8 +40,12 @@ public class CookAgent extends Agent {
 	}
 
 	class Food {
-		String choice;
+		int amount;
 		int cookingTime;
+		public Food (int a, int c) {
+			amount = a;
+			cookingTime = c;
+		}
 	}
 
 	private List<CookOrder> orders = new ArrayList<CookOrder>();
@@ -50,11 +54,16 @@ public class CookAgent extends Agent {
 
 	public CookAgent(String name) {
 		super();
+		
+		Food steak = new Food(1, 5);
+		Food salad = new Food(1, 2);
+		Food pizza = new Food(1, 4);
+		Food chicken = new Food(1, 3);
 		this.name = name;
-		foodMap.put("Steak", 5); 
-		foodMap.put("Salad", 2);  
-		foodMap.put("Pizza", 4);  
-		foodMap.put("Chicken", 3);
+		foodMap.put("Steak", steak); 
+		foodMap.put("Salad", salad);  
+		foodMap.put("Pizza", pizza);  
+		foodMap.put("Chicken", chicken);
 	}
 
 	public void setGui(CookGui gui) {
@@ -90,11 +99,17 @@ public class CookAgent extends Agent {
 		stateChanged();
 	}
 
-	// Utility function that marks the order as done
-
 
 	private void CookIt(CookOrder o){
-		CookFood(o.choice);
+		foodMap.get(o.choice).amount--; 
+		if (foodMap.get(o.choice).amount >= 0) {
+			CookFood(o.choice);
+		}
+		else {
+			System.out.println("IM OUT OF FOOD");
+			o.waiter.msgImOutOfFood(o.table);
+			orders.remove(o);
+		}
 	}
 
 	private void PlateIt(CookOrder o) {
@@ -110,7 +125,7 @@ public class CookAgent extends Agent {
 				markFoodDone(choice);
 			}
 		},
-		foodMap.get(choice)*1000);
+		foodMap.get(choice).cookingTime*1000);
 	}
 
 	public void markFoodDone(String choice) {

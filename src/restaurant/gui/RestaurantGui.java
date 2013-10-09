@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import restaurant.CustomerAgent;
+import restaurant.WaiterAgent;
 /**
  * Main GUI class.
  * Contains the main frame and subsequent panels
@@ -125,6 +126,20 @@ public class RestaurantGui extends JFrame implements ActionListener {
           // Hack. Should ask customerGui
             infoLabel.setText(
                "<html><pre>     Name: " + customer.getName() + " </pre></html>");
+            infoPanel.validate();
+        }
+        
+        if (person instanceof WaiterAgent) {
+            WaiterAgent waiter = (WaiterAgent) person;
+            stateCB.setText("Break?");
+          //Should checkmark be there? 
+            stateCB.setSelected(waiter.getGui().IsOnBreak());
+          //Is customer hungry? Hack. Should ask customerGui
+            stateCB.setEnabled(!waiter.getGui().IsOnBreak());
+          // Hack. Should ask customerGui
+            infoLabel.setText(
+               "<html><pre>     Name: " + waiter.getName() + " </pre></html>");
+            infoPanel.validate();
         }
         infoPanel.validate();
     }
@@ -141,6 +156,13 @@ public class RestaurantGui extends JFrame implements ActionListener {
                 stateCB.setEnabled(false);
             }
         }
+        if (e.getSource() == stateCB) {
+            if (currentPerson instanceof WaiterAgent) {
+                WaiterAgent w = (WaiterAgent) currentPerson;
+                w.getGui().IsOnBreak();
+                stateCB.setEnabled(false);
+            }
+        }
     }
     /**
      * Message sent from a customer gui to enable that customer's
@@ -152,6 +174,16 @@ public class RestaurantGui extends JFrame implements ActionListener {
         if (currentPerson instanceof CustomerAgent) {
             CustomerAgent cust = (CustomerAgent) currentPerson;
             if (c.equals(cust)) {
+                stateCB.setEnabled(true);
+                stateCB.setSelected(false);
+            }
+        }
+    }
+    
+    public void setWaiterEnabled(WaiterAgent w) {
+        if (currentPerson instanceof WaiterAgent) {
+            WaiterAgent waiter = (WaiterAgent) currentPerson;
+            if (w.equals(waiter)) {
                 stateCB.setEnabled(true);
                 stateCB.setSelected(false);
             }

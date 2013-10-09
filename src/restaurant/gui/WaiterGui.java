@@ -107,7 +107,7 @@ public class WaiterGui implements Gui {
 		if ((xPos == CookX) && (yPos == CookY) && (xDestination == CookX) && (yDestination == CookY)){ //hack
 			agent.msgAtCook();
 		}
-
+		
 	}
 
 	public void draw(Graphics2D g) {
@@ -181,5 +181,13 @@ public class WaiterGui implements Gui {
 		f.moveToTable();
 		custGui.TakeFood(f);
 	}
+	
+	public void setBreak() {
+		agent.msgWantBreak();
+	}
+	public boolean IsOnBreak() {
+		return agent.onBreak;
+	}
+
 
 }

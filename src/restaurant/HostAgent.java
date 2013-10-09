@@ -27,16 +27,19 @@ public class HostAgent extends Agent {
 	private String name;
 
 	public HostGui hostGui = null;
-	
+
 	private Semaphore seatCustomer = new Semaphore(0, true);
 
 	private class MyWaiter {
 		public MyWaiter(WaiterAgent w, int nTables) {
 			waiter = w;
 			numTables = nTables; 
+			onBreak = false;
 		}
 		WaiterAgent waiter;
 		int numTables;
+		boolean onBreak;
+
 	}
 
 	private List<MyWaiter> waiters = new ArrayList<MyWaiter>();
@@ -78,6 +81,21 @@ public class HostAgent extends Agent {
 		}
 	}
 
+	public void msgIWantABreak(WaiterAgent w)
+	{
+		if (waiters.size() > 1) {
+			for (MyWaiter mw : waiters) {
+				if (mw.waiter.getName() == w.getName()) {
+					mw.onBreak = true;
+					mw.waiter.msgBreakApproved();
+				}
+			}
+		}
+		else {
+			w.msgBreakDenied();
+		}
+	}
+
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
 	 */
@@ -91,10 +109,12 @@ public class HostAgent extends Agent {
 						int WaiterWithMinTables = 0;
 						int i = 0;
 						for (MyWaiter mw : waiters) {
-							
-							if (mw.numTables < minTables) {
-								minTables = mw.numTables;
-								WaiterWithMinTables = i;
+							if (!mw.onBreak)
+							{
+								if (mw.numTables < minTables) {
+									minTables = mw.numTables;
+									WaiterWithMinTables = i;
+								}
 							}
 							i++;
 						}
@@ -115,7 +135,7 @@ public class HostAgent extends Agent {
 			stateChanged();
 			return true;
 		}
-		
+
 		return false;
 	}
 

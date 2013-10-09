@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import restaurant.CookAgent.CookOrder;
+import restaurant.gui.CustomerGui;
 import restaurant.gui.HostGui;
 import restaurant.gui.WaiterGui;
 import agent.Agent;
@@ -25,8 +26,11 @@ public class WaiterAgent extends Agent {
 	public Semaphore serveFood = new Semaphore(0, true);
 
 	boolean readyCustomers = false;
+	boolean WantBreak = false;
+	public boolean onBreak = false;
+	boolean pendingActions = true;
 
-	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done};
+	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable};
 
 	private class MyCustomer {
 		public MyCustomer(CustomerAgent customer, int table, CustomerState state) {
@@ -83,7 +87,7 @@ public class WaiterAgent extends Agent {
 
 	public void msgSitAtTable(CustomerAgent cust, int table) {
 		customers.add(new MyCustomer(cust, table, CustomerState.waiting));
-
+		//WantBreak = true;
 		stateChanged();
 	}
 
@@ -123,11 +127,24 @@ public class WaiterAgent extends Agent {
 			if (c.getName() == mc.c.getName()) {
 				host.msgTableIsFree(mc.t);
 				customers.remove(mc);
+				stateChanged();
 			}
 			break;
 		}
 	}
 
+	public void msgImOutOfFood(int table) {
+		for (MyCustomer mc : customers)
+		{
+			if (mc.t == table) {
+				mc.s = CustomerState.notAvailable; 
+				stateChanged();
+			}
+		}
+	}
+
+
+	// GUI synchronization semaphores
 
 	public void msgAtTable() { 
 		atTable.release();
@@ -149,57 +166,110 @@ public class WaiterAgent extends Agent {
 		stateChanged();
 	}
 
+	public void msgBreakApproved() { 
+		System.out.println ("Break Accepted");
+		onBreak = true;
+	}
+
+	public void msgBreakDenied() {
+		System.out.println ("Break Denied");
+		onBreak = false;
+	}
+	
+	public void msgWantBreak() {
+		WantBreak = true;
+	}
+
+
+
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
 	 * @return 
 	 */
 	protected boolean pickAndExecuteAnAction() {
-		
-		// agent sleeps until order is given
-		for (MyCustomer mc : customers) {
-			if (mc.s == CustomerState.asked) {
-				try {
-					orderGiven.acquire();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+		if (!onBreak) {
+			// agent sleeps until order is given
+			for (MyCustomer mc : customers) {
+				if (mc.s == CustomerState.asked) {
+					try {
+						orderGiven.acquire();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return true;
 				}
+			}
+
+			for (MyCustomer mc : customers) {
+				if (mc.s == CustomerState.ordered) {
+					GiveOrderToCook(mc);
+					return true;
+				}
+
+			}
+
+			for (MyCustomer mc : customers) {
+				if (mc.s == CustomerState.waiting) {
+					seatCustomer(mc); 
+					return true;
+				}
+			}
+
+			for (MyCustomer mc : customers) {
+				if (mc.s == CustomerState.readyToOrder) {
+					TakeOrder(mc);
+					return true;
+				}
+			}
+
+			for (MyCustomer mc : customers) {
+				if (mc.s == CustomerState.notAvailable) {
+					TellCustomerFoodUnavailable(mc);
+					return true;
+				}
+			}
+
+			if (readyOrders.size() > 0) {
+				TakeFoodToCustomer();
 				return true;
 			}
-		}
 
-		for (MyCustomer mc : customers) {
-			if (mc.s == CustomerState.ordered) {
-				GiveOrderToCook(mc);
-				return true;
+			for (MyCustomer mc : customers)
+			{
+				if (mc.s != CustomerState.done) {
+					pendingActions = true;
+					break;
+				}
+				else {
+					pendingActions = false;
+					break;
+				}
 			}
 			
-		}
-
-		for (MyCustomer mc : customers) {
-			if (mc.s == CustomerState.waiting) {
-				seatCustomer(mc); 
-				return true;
+			if ((!pendingActions) && (WantBreak)) {
+				host.msgIWantABreak(this);
 			}
 		}
-
-		for (MyCustomer mc : customers) {
-			if (mc.s == CustomerState.readyToOrder) {
-				TakeOrder(mc);
-				return true;
-			}
-		}
-
-		if (readyOrders.size() > 0)
-		{
-			TakeFoodToCustomer();
-			return true;
-		}
-
 		return false;
 	}
 
 	// Actions
+
+	private void TellCustomerFoodUnavailable(MyCustomer mc) {
+		waiterGui.DoGoToTable(mc.t); 
+		atTable.drainPermits();
+		try {
+			atTable.acquire(); 
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mc.c.msgFoodUnavailable();
+		mc.s = CustomerState.done;
+	}
+
 
 	private void seatCustomer(MyCustomer c) {
 		DoSeatCustomer(c.c, c.t);
@@ -299,6 +369,7 @@ public class WaiterAgent extends Agent {
 						}
 						mc.c.msgHereIsYourFood();
 						readyOrders.remove(0);
+						mc.s = CustomerState.done;
 						waiterGui.DoLeaveCustomer();
 
 					}
@@ -317,6 +388,10 @@ public class WaiterAgent extends Agent {
 
 	public void setGui(WaiterGui gui) {
 		waiterGui = gui;
+	}
+
+	public WaiterGui getGui() {
+		return waiterGui;
 	}
 
 
