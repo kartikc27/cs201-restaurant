@@ -3,7 +3,7 @@
 ###Instructions
 
 1. Clone repo: git clone git@github.com:usc-csci201-fall2013/restaurant_chillaka.git
-2. Open project: File => New => Other => Java Project from Existing Ant Buildfile. Select the build.xml file from the cloned repo
+2. Open project: File > New > Other > Java Project from Existing Ant Buildfile. Select the build.xml file from the cloned repo
 3. Run the project as a Java Application 
 
 ###General Notes
