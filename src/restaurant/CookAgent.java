@@ -132,8 +132,8 @@ public class CookAgent extends Agent {
 
 
 	private void CookIt(CookOrder o){
-		foodMap.get(o.choice).amount--; 
 		if (foodMap.get(o.choice).amount >= 0) {
+			foodMap.get(o.choice).amount--; 
 			CookFood(o.choice);
 		}
 		else {

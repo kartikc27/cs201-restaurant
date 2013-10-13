@@ -202,16 +202,25 @@ public class CustomerAgent extends Agent {
 		int randomInt = randomGenerator.nextInt(4);
 		choice = myMenu.menuItems[randomInt];
 		waiter.msgHereIsMyChoice(choice, this);*/
-		if (!reorder) {
-			choice = name;
-			if (choice.equals("steak"))
-				choice = "Steak";
-			if (choice.equals("pizza"))
-				choice = "Pizza";
-			if (choice.equals("salad"))
-				choice = "Salad";
-			if (choice.equals("chicken"))
-				choice = "Chicken";
+		if ((name.equals("salad")) || (name.equals("Salad")) || (name.equals("steak")) || (name.equals("Steak"))  || (name.equals("pizza")) || (name.equals("Pizza")) || (name.equals("chicken")) || (name.equals("Chicken"))) 
+		{
+			if (!reorder) {
+				choice = name;
+				if (choice.equals("steak"))
+					choice = "Steak";
+				if (choice.equals("pizza"))
+					choice = "Pizza";
+				if (choice.equals("salad"))
+					choice = "Salad";
+				if (choice.equals("chicken"))
+					choice = "Chicken";
+			}
+			else {
+				Random randomGenerator = new Random();
+				int randomInt = randomGenerator.nextInt(4);
+				choice = myMenu.menuItems[randomInt];
+			}
+			
 		}
 		else {
 			Random randomGenerator = new Random();

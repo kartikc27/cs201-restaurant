@@ -116,13 +116,13 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
         			restPanel.markBreak(name, true);
         			restPanel.showInfo(type, name);
         			
-        			/*breakTimer.schedule(new TimerTask() {
+        			breakTimer.schedule(new TimerTask() {
         				public void run() {
         					restPanel.markBreak(name, false);
         					restPanel.showInfo(type, name);
         				}
         			},
-        			10000);*/
+        			5000);
         		}
         	}
         }

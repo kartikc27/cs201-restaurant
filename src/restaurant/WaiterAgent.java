@@ -33,7 +33,7 @@ public class WaiterAgent extends Agent {
 	boolean pendingActions = true;
 	private CashierAgent cashier;
 
-	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable, doneEating};
+	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable, doneEating, eating};
 
 	private class MyCustomer {
 		public MyCustomer(CustomerAgent customer, int table, CustomerState state) {
@@ -180,12 +180,12 @@ public class WaiterAgent extends Agent {
 	}
 
 	public void msgBreakApproved() { 
-		System.out.println ("Break Accepted");
+		print ("Break Accepted");
 		onBreak = true;
 	}
 
 	public void msgBreakDenied() {
-		System.out.println ("Break Denied");
+		print ("Break Denied");
 		onBreak = false;
 	}
 
@@ -221,7 +221,7 @@ public class WaiterAgent extends Agent {
 						return true;
 					}
 				}
-			
+
 
 				for(MyCustomer c:customers){
 					if(c.s == CustomerState.doneEating) {
@@ -229,7 +229,7 @@ public class WaiterAgent extends Agent {
 						return true;
 					}
 				}
-				
+
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.waiting) {
 						seatCustomer(mc); 
@@ -247,12 +247,11 @@ public class WaiterAgent extends Agent {
 
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.notAvailable) {
-						print ("TELLING CUSTOMER FOOD UNAVAILABLE");
 						TellCustomerFoodUnavailable(mc);
 						return true;
 					}
 				}
-				
+
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.done) {
 						waiterGui.DoLeaveCustomer();
@@ -264,24 +263,25 @@ public class WaiterAgent extends Agent {
 					return true;
 				}
 
-				for (MyCustomer mc : customers)
-				{
-					if (mc.s != CustomerState.done) {
-						pendingActions = true;
-						break;
+				if (WantBreak) {
+					for (MyCustomer mc : customers)
+					{
+						if (mc.s != CustomerState.done) {
+							pendingActions = true;
+							break;
+						}
+						else {
+							pendingActions = false;
+						}
 					}
-					else {
-						pendingActions = false;
-						break;
-					}
-				}
 
-				if ((!pendingActions) && (WantBreak)) {
-					host.msgIWantABreak(this);
+					if (!pendingActions) {
+						host.msgIWantABreak(this);
+					}
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -409,7 +409,7 @@ public class WaiterAgent extends Agent {
 						}
 						mc.c.msgHereIsYourFood();
 						readyOrders.remove(0);
-						mc.s = CustomerState.done;
+						mc.s = CustomerState.eating;
 						waiterGui.DoLeaveCustomer();
 
 					}

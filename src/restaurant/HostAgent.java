@@ -93,6 +93,7 @@ public class HostAgent extends Agent {
 				if (mw.waiter.getName().equals(w.getName())) {
 					mw.onBreak = true;
 					mw.waiter.msgBreakApproved();
+					break;
 				}
 			}
 		}
@@ -110,18 +111,23 @@ public class HostAgent extends Agent {
 			for (Table table : tables) {
 				if (!table.isOccupied()) {
 					if (!waitingCustomers.isEmpty()) {
-						int minTables = waiters.get(0).numTables;
-						int WaiterWithMinTables = 0;
 						int i = 0;
+						for (MyWaiter m : waiters) {
+							if (m.onBreak)
+								i++;
+						}
+						int minTables = waiters.get(i).numTables;
+						int WaiterWithMinTables = i;
+						int j = 0;
 						for (MyWaiter mw : waiters) {
 							if (!mw.onBreak)
 							{
 								if (mw.numTables < minTables) {
 									minTables = mw.numTables;
-									WaiterWithMinTables = i;
+									WaiterWithMinTables = j;
 								}
 							}
-							i++;
+							j++;
 						}
 						waiters.get(WaiterWithMinTables).numTables++;
 						tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
