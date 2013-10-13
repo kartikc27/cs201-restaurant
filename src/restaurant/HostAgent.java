@@ -112,6 +112,11 @@ public class HostAgent extends Agent {
 			stateChanged();
 		}
 	}
+	
+	//message from Gui once customer has been seated
+	public void msgCustomerSeated() {
+		seatCustomer.release();
+	}
 
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
@@ -211,9 +216,6 @@ public class HostAgent extends Agent {
 		}
 	}
 
-	public void msgCustomerSeated() {
-		seatCustomer.release();
-	}
 
 }
 
