@@ -9,9 +9,6 @@ import java.util.TimerTask;
 
 import agent.Agent;
 
-/**
- * Restaurant Host Agent
- */
 
 public class MarketAgent extends Agent {
 

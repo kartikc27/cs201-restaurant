@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
+import restaurant.Check.CheckState;
 import restaurant.CustomerAgent.AgentEvent;
 import restaurant.gui.WaiterGui;
 import agent.Agent;
@@ -24,7 +25,6 @@ public class WaiterAgent extends Agent {
 	public Semaphore atCook = new Semaphore(0, true);
 	public Semaphore orderGiven = new Semaphore(0, true);
 	public Semaphore serveFood = new Semaphore(0, true);
-	
 	public Semaphore takingBreak = new Semaphore(0,true);
 
 	Timer breakTimer = new Timer();
@@ -35,7 +35,7 @@ public class WaiterAgent extends Agent {
 	boolean pendingActions = true;
 	private CashierAgent cashier;
 
-	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable, doneEating, eating};
+	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable, doneEating, eating, gone};
 
 	private class MyCustomer {
 		public MyCustomer(CustomerAgent customer, int table, CustomerState state) {
@@ -63,6 +63,7 @@ public class WaiterAgent extends Agent {
 
 	private List<MyCustomer> customers = new ArrayList<MyCustomer>();
 	private List<WaiterOrder> readyOrders = new ArrayList<WaiterOrder>();
+	private List<Check> checks = new ArrayList<Check>();
 
 	public WaiterGui waiterGui = null;
 	private CookAgent cook;
@@ -118,6 +119,7 @@ public class WaiterAgent extends Agent {
 				mc.s = CustomerState.ordered;
 				stateChanged();
 			}		
+
 		}
 
 	}
@@ -142,7 +144,7 @@ public class WaiterAgent extends Agent {
 		{
 			if (c.equals(mc.c)) {
 				host.msgTableIsFree(mc.t);
-				mc.s = CustomerState.done;
+				mc.s = CustomerState.gone;
 				stateChanged();
 			}
 		}
@@ -157,9 +159,6 @@ public class WaiterAgent extends Agent {
 			}
 		}
 	}
-
-
-	// GUI synchronization semaphores
 
 	public void msgAtTable() { 
 		atTable.release();
@@ -198,6 +197,14 @@ public class WaiterAgent extends Agent {
 		stateChanged();
 	}
 
+	public void msgHereIsComputedCheck(Check c) {
+		print ("Received computed check");
+		checks.add(c);
+		stateChanged();
+	}
+
+
+
 
 
 	/**
@@ -208,6 +215,13 @@ public class WaiterAgent extends Agent {
 
 		if (!onBreak) {
 			if(!customers.isEmpty()){
+				
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.gone) {
+						customers.remove(mc);
+						return true;
+					}
+				}
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.asked) {
 						orderGiven.drainPermits();
@@ -222,7 +236,16 @@ public class WaiterAgent extends Agent {
 
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.ordered) {
+						mc.s = CustomerState.orderGiven;
 						GiveOrderToCook(mc);
+						return true;
+					}
+				}
+
+
+				for (Check c : checks) {
+					if (c.state == CheckState.unpaid) {
+						DoDeliverCheck(c);
 						return true;
 					}
 				}
@@ -367,6 +390,7 @@ public class WaiterAgent extends Agent {
 	private void TakeOrder(MyCustomer c){
 		print("Taking the order of " + c.c + " at " + c.t);
 		waiterGui.DoGoToTable(c.t); 
+		atTable.drainPermits();
 		try {
 			atTable.acquire(); 
 		} catch (InterruptedException e) {
@@ -443,14 +467,16 @@ public class WaiterAgent extends Agent {
 		waiterGui.DoBringToTable(customer.getGui(), tableNumber); 
 	}
 
-	private void prepareCheck(MyCustomer customer)
-	{
+	private void prepareCheck(MyCustomer customer) {
 		print("Preparing bill for Customer");
 		customer.s = CustomerState.done;
 		waiterGui.DoClearTable(customer.t);
-		Check c = new Check(customer.c, customer.t, customer.choice);
-		cashier.msgGiveCheckToCashier(c);
-		waiterGui.DoGoToTable(customer.t); 
+		//Check c = new Check(customer.c, customer.t, customer.choice);
+		cashier.msgGiveOrderToCashier(customer.choice, customer.t, customer.c, this); 
+	}
+
+	private void DoDeliverCheck(Check c) {
+		waiterGui.DoGoToTable(c.tableNum); 
 		atTable.drainPermits();
 		try {
 			atTable.acquire(); 
@@ -458,9 +484,11 @@ public class WaiterAgent extends Agent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		customer.c.msgHereIsCheck(c);
+		c.c.msgHereIsCheck(c);
+		c.state = CheckState.delivered;
 		stateChanged();
 	}
+
 
 	public void setCashier(CashierAgent cashier){
 		this.cashier = cashier;

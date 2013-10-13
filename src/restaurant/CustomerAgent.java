@@ -17,6 +17,8 @@ public class CustomerAgent extends Agent {
 	Timer timer = new Timer();
 	private CustomerGui customerGui;
 	private boolean reorder = false;
+	private double money;
+	public boolean oweMoney = false;
 
 	// agent correspondents
 	private HostAgent host;
@@ -24,14 +26,14 @@ public class CustomerAgent extends Agent {
 	private CashierAgent cashier;
 
 	private Menu myMenu;
-	private Check check;
+	Check check;
 
 	public enum AgentState
-	{DoingNothing, WaitingInRestaurant, BeingSeated, OrderingFood, WaitingForFood, Eating, DoneEating, Leaving, WaitingForCheck};
+	{DoingNothing, WaitingInRestaurant, BeingSeated, OrderingFood, WaitingForFood, Eating, DoneEating, Leaving, WaitingForCheck, DoingAbsolutelyNothing};
 	private AgentState state = AgentState.DoingNothing;//The start state
 
 	public enum AgentEvent 
-	{none, gotHungry, followWaiter, seated, order, foodReceived, foodUnavailable, doneEating, doneLeaving, checkArrived};
+	{none, gotHungry, followWaiter, seated, order, foodReceived, foodUnavailable, doneEating, doneLeaving, checkArrived, punish};
 	AgentEvent event = AgentEvent.none;
 
 	/**
@@ -43,6 +45,11 @@ public class CustomerAgent extends Agent {
 	public CustomerAgent(String name){
 		super();
 		this.name = name;
+		if ((name.equals("flake")) || (name.equals("Flake"))) {
+			money = 0;
+		}
+		else
+			money = 100;
 	}
 
 	/**
@@ -111,6 +118,12 @@ public class CustomerAgent extends Agent {
 		event = AgentEvent.doneLeaving;
 		stateChanged();
 	}
+	
+	public void msgPunish() {
+		event = AgentEvent.punish;
+		oweMoney = true;
+		stateChanged();
+	}
 
 
 	/**
@@ -120,6 +133,12 @@ public class CustomerAgent extends Agent {
 		//	CustomerAgent is a finite state machine
 
 		if (state == AgentState.DoingNothing && event == AgentEvent.gotHungry ){
+			state = AgentState.WaitingInRestaurant;
+			GoToRestaurant();
+			return true;
+		}
+		
+		if (state == AgentState.DoingAbsolutelyNothing && event == AgentEvent.gotHungry ){
 			state = AgentState.WaitingInRestaurant;
 			GoToRestaurant();
 			return true;
@@ -155,8 +174,7 @@ public class CustomerAgent extends Agent {
 			if (event == AgentEvent.foodUnavailable) {
 				state = AgentState.OrderingFood;
 				event = AgentEvent.order;
-				print ("REORDERING");
-				//OrderFood();
+				print ("Reordering");
 				return true;
 			}
 
@@ -173,6 +191,11 @@ public class CustomerAgent extends Agent {
 			payCheckAndLeave();
 			state = AgentState.DoingNothing;
 			return true;
+		}
+		
+		if ((state == AgentState.DoingNothing) && (event == AgentEvent.punish)) {
+			stealMoney();
+			state = AgentState.DoingAbsolutelyNothing;
 		}
 
 
@@ -252,8 +275,16 @@ public class CustomerAgent extends Agent {
 
 		timer.schedule(new TimerTask() {
 			public void run() {
-				print("Paid check of " + check.price + " for " + choice);
-				cashier.msgPayingCheck(check, check.price);  
+				
+				if (check.price > money) {
+					cashier.msgPayingCheck(check, money-check.price);
+					print ("Couldn't afford check");
+				}
+				else {
+					cashier.msgPayingCheck(check, check.price);
+					print("Paid check of " + check.price + " for " + choice);
+				}
+				oweMoney = false;
 				LeaveTable();
 				print("Leaving the restaurant");
 
@@ -300,6 +331,11 @@ public class CustomerAgent extends Agent {
 
 	public CustomerGui getGui() {
 		return customerGui;
+	}
+	
+	private void stealMoney() {
+		print ("Stole 100 dollars");
+		money += 100;
 	}
 
 

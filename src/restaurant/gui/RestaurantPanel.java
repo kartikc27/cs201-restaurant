@@ -80,6 +80,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         cook.setGui(cookGui);
         cook.startThread();
         
+        cashier.startThread();
        
         
         
