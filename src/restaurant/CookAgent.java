@@ -178,6 +178,15 @@ public class CookAgent extends Agent {
 	public void addMarkets(List<MarketAgent> markets) {
 		this.markets = markets;
 	}
+	
+	public void drainInventory() {
+		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+			entry.getValue().amount = 0;
+		}
+		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+			System.out.println(entry.getKey() + " " + entry.getValue().amount);
+		}
+	}
 
 }
 

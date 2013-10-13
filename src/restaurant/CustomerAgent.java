@@ -348,7 +348,7 @@ public class CustomerAgent extends Agent {
 				customerGui.DoExitRestaurant(); //for the animation
 
 			}},
-			3000);//how long to wait before running task
+			500);
 	}
 
 
