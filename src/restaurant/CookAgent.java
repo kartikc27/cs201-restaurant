@@ -150,7 +150,6 @@ public class CookAgent extends Agent {
 		orders.remove(o);
 	}
 
-	//receives message twice...
 	private void CookFood(final String choice) {
 		timer.schedule(new TimerTask() {
 			public void run() {
