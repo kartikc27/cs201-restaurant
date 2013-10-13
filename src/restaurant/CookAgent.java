@@ -53,11 +53,20 @@ public class CookAgent extends Agent {
 
 	private List<CookOrder> orders = new ArrayList<CookOrder>();
 	private List<MarketAgent> markets = new ArrayList<MarketAgent>(); 
+	private MarketAgent market1;
+	private MarketAgent market2;
+	private MarketAgent market3;
+	
 	Map <String , Food> foods;
 
 	public CookAgent(String name) {
 		super();
-		this.markets = markets;
+		market1 = new MarketAgent("Market 1", 10, 10, 10, 10, this);
+	    market2 = new MarketAgent("Market 2", 0, 0, 0, 0, this);
+	    market3 = new MarketAgent("Market 3", 7, 15, 21, 11, this);
+	    markets.add(market1);
+	    markets.add(market2);
+	    markets.add(market3);
 		Food steak = new Food(1, 5);
 		Food salad = new Food(1, 2);
 		Food pizza = new Food(1, 4);

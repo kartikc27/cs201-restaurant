@@ -47,6 +47,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     private MarketAgent market1 = new MarketAgent("Market 1", 10, 10, 10, 10, cook);
     private MarketAgent market2 = new MarketAgent("Market 2", 0, 0, 0, 0, cook);
     private MarketAgent market3 = new MarketAgent("Market 3", 7, 15, 21, 11, cook);
+    
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
     private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 
