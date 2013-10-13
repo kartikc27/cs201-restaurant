@@ -16,13 +16,13 @@ public class FoodGui implements Gui {
 	private WaiterGui waiter = null;
 
 	private Graphics2D g = null;
-
 	private int xPos, yPos; 
 	private int xDestination, yDestination; 
 	private String food;
 	private boolean delivered;
+	public boolean visible = true;
 	Color foodColor = null;
-	private int tableNumber;
+	public int tableNumber;
 
 
 	public FoodGui(WaiterGui waiter, String choice, boolean delivered, int x, int y, int t) {
@@ -34,35 +34,37 @@ public class FoodGui implements Gui {
 		tableNumber = t;
 	}
 
-	public void draw(Graphics2D g) {
-		this.g = g;
-		if (food == "Steak")
-			foodColor = new Color (152, 105, 3);
-		else if (food == "Pizza")
-			foodColor = new Color (231, 76, 60);
-		else if (food == "Salad")
-			foodColor = new Color (39, 174, 96);
-		else if (food == "Chicken")
-			foodColor = new Color (243, 156, 18);
-		g.setColor(foodColor);
-		g.fillRect(xPos, yPos, 17, 17);
-		g.setColor(new Color(255,255,255));
-		if (!delivered)
-		{
-			g.drawString("?", xPos+5,  yPos+12);
-		}
-		else {
+	public void draw(Graphics2D g) { 
+		if (visible) {
+			this.g = g;
 			if (food == "Steak")
-				g.drawString("S", xPos+5,  yPos+13);
+				foodColor = new Color (152, 105, 3);
 			else if (food == "Pizza")
-				g.drawString("P", xPos+5,  yPos+13);
+				foodColor = new Color (231, 76, 60);
 			else if (food == "Salad")
-				g.drawString("Sa", xPos+1,  yPos+13);
+				foodColor = new Color (39, 174, 96);
 			else if (food == "Chicken")
-				g.drawString("C", xPos+3,  yPos+13);
+				foodColor = new Color (243, 156, 18);
+			g.setColor(foodColor);
+			g.fillRect(xPos, yPos, 17, 17);
+			g.setColor(new Color(255,255,255));
+			if (!delivered)
+			{
+				g.drawString("?", xPos+5,  yPos+13);
+			}
+			else {
+				if (food == "Steak")
+					g.drawString("S", xPos+5,  yPos+13);
+				else if (food == "Pizza")
+					g.drawString("P", xPos+5,  yPos+13);
+				else if (food == "Salad")
+					g.drawString("Sa", xPos+1,  yPos+13);
+				else if (food == "Chicken")
+					g.drawString("C", xPos+3,  yPos+13);
+			}
 		}
 	}
-	
+
 
 	public boolean isPresent() {
 		return true;
@@ -92,7 +94,7 @@ public class FoodGui implements Gui {
 			waiter.agent.msgFoodDelivered();
 		}
 	}
-	
+
 	public void moveWithWaiter()
 	{
 		xDestination = waiter.locations.get(tableNumber-1).getX() + 20;
@@ -101,6 +103,7 @@ public class FoodGui implements Gui {
 
 
 	public void moveToTable() {
+		delivered = true;
 		xDestination = waiter.locations.get(tableNumber-1).getX()+20;
 		yDestination = waiter.locations.get(tableNumber-1).getY()+20;
 	}

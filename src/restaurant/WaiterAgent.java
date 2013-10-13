@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import restaurant.CookAgent.CookOrder;
-import restaurant.gui.CustomerGui;
-import restaurant.gui.HostGui;
 import restaurant.gui.WaiterGui;
 import agent.Agent;
 
@@ -29,8 +26,9 @@ public class WaiterAgent extends Agent {
 	boolean WantBreak = false;
 	public boolean onBreak = false;
 	boolean pendingActions = true;
+	private CashierAgent cashier;
 
-	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable};
+	enum CustomerState{waiting, seated, readyToOrder, asked, ordered, orderGiven, done, notAvailable, doneEating};
 
 	private class MyCustomer {
 		public MyCustomer(CustomerAgent customer, int table, CustomerState state) {
@@ -86,6 +84,7 @@ public class WaiterAgent extends Agent {
 
 
 	public void msgSitAtTable(CustomerAgent cust, int table) {
+		print("received message sit at table");
 		customers.add(new MyCustomer(cust, table, CustomerState.waiting));
 		//WantBreak = true;
 		stateChanged();
@@ -94,7 +93,7 @@ public class WaiterAgent extends Agent {
 	public void msgImReadyToOrder(CustomerAgent cust) {
 		for (MyCustomer mc : customers)
 		{
-			if (cust.getName() == mc.c.getName()) {
+			if (cust.getName().equals(mc.c.getName())) {
 				mc.s = CustomerState.readyToOrder;
 				stateChanged();
 			}
@@ -120,16 +119,27 @@ public class WaiterAgent extends Agent {
 		stateChanged();
 	}
 
-	public void msgDoneEatingAndLeaving(CustomerAgent c) {
+	public void msgDoneEating(CustomerAgent c){
+		for(MyCustomer mc:customers){
+			if(mc.c.equals(c)){
+				mc.s = CustomerState.doneEating;
+				stateChanged();
+				return;
+			}
+		}
+	}
 
+	public void msgLeaving(CustomerAgent c) {
+		
 		for (MyCustomer mc : customers)
 		{
-			if (c.getName() == mc.c.getName()) {
+			if (c.getName().equals(mc.c.getName())) {
 				host.msgTableIsFree(mc.t);
-				customers.remove(mc);
+				System.out.println ("TABLE " + mc.t + " IS FREE");
+				//customers.remove(mc);
+				mc.s = CustomerState.done;
 				stateChanged();
 			}
-			break;
 		}
 	}
 
@@ -175,7 +185,7 @@ public class WaiterAgent extends Agent {
 		System.out.println ("Break Denied");
 		onBreak = false;
 	}
-	
+
 	public void msgWantBreak() {
 		WantBreak = true;
 	}
@@ -189,67 +199,82 @@ public class WaiterAgent extends Agent {
 	protected boolean pickAndExecuteAnAction() {
 
 		if (!onBreak) {
-			// agent sleeps until order is given
-			for (MyCustomer mc : customers) {
-				if (mc.s == CustomerState.asked) {
-					try {
-						orderGiven.acquire();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+			if(!customers.isEmpty()){
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.asked) {
+						try {
+							orderGiven.acquire();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						return true;
 					}
-					return true;
-				}
-			}
-
-			for (MyCustomer mc : customers) {
-				if (mc.s == CustomerState.ordered) {
-					GiveOrderToCook(mc);
-					return true;
 				}
 
-			}
-
-			for (MyCustomer mc : customers) {
-				if (mc.s == CustomerState.waiting) {
-					seatCustomer(mc); 
-					return true;
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.ordered) {
+						GiveOrderToCook(mc);
+						return true;
+					}
 				}
-			}
-
-			for (MyCustomer mc : customers) {
-				if (mc.s == CustomerState.readyToOrder) {
-					TakeOrder(mc);
-					return true;
-				}
-			}
-
-			for (MyCustomer mc : customers) {
-				if (mc.s == CustomerState.notAvailable) {
-					TellCustomerFoodUnavailable(mc);
-					return true;
-				}
-			}
-
-			if (readyOrders.size() > 0) {
-				TakeFoodToCustomer();
-				return true;
-			}
-
-			for (MyCustomer mc : customers)
-			{
-				if (mc.s != CustomerState.done) {
-					pendingActions = true;
-					break;
-				}
-				else {
-					pendingActions = false;
-					break;
-				}
-			}
 			
-			if ((!pendingActions) && (WantBreak)) {
-				host.msgIWantABreak(this);
+
+				for(MyCustomer c:customers){
+					if(c.s == CustomerState.doneEating) {
+						waiterGui.DoClearTable(c.t);
+						prepareCheck(c);
+						return true;
+					}
+				}
+				
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.waiting) {
+						seatCustomer(mc); 
+						return true;
+					}
+				}
+
+
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.readyToOrder) {
+						TakeOrder(mc);
+						return true;
+					}
+				}
+
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.notAvailable) {
+						TellCustomerFoodUnavailable(mc);
+						return true;
+					}
+				}
+				
+				for (MyCustomer mc : customers) {
+					if (mc.s == CustomerState.done) {
+						waiterGui.DoLeaveCustomer();
+					}
+				}
+
+				if (readyOrders.size() > 0) {
+					TakeFoodToCustomer();
+					return true;
+				}
+
+				for (MyCustomer mc : customers)
+				{
+					if (mc.s != CustomerState.done) {
+						pendingActions = true;
+						break;
+					}
+					else {
+						pendingActions = false;
+						break;
+					}
+				}
+
+				if ((!pendingActions) && (WantBreak)) {
+					host.msgIWantABreak(this);
+				}
 			}
 		}
 		return false;
@@ -272,6 +297,16 @@ public class WaiterAgent extends Agent {
 
 
 	private void seatCustomer(MyCustomer c) {
+		if (!waiterGui.isHome()) {
+			waiterGui.DoLeaveCustomer();
+			leftCustomer.drainPermits();
+			try {
+				leftCustomer.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		DoSeatCustomer(c.c, c.t);
 		c.c.msgFollowMe(new Menu());
 		c.c.setWaiter(this);
@@ -385,6 +420,27 @@ public class WaiterAgent extends Agent {
 		waiterGui.DoBringToTable(customer.getGui(), tableNumber); 
 	}
 
+	private void prepareCheck(MyCustomer customer)
+	{
+		print("Preparing bill for Customer");
+		customer.s = CustomerState.done;
+		Check c = new Check(customer.c, customer.t, customer.choice);
+		cashier.msgGiveCheckToCashier(c);
+		waiterGui.DoGoToTable(customer.t); 
+		atTable.drainPermits();
+		try {
+			atTable.acquire(); 
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		customer.c.msgHereIsCheck(c);
+		stateChanged();
+	}
+
+	public void setCashier(CashierAgent cashier){
+		this.cashier = cashier;
+	}
 
 	public void setGui(WaiterGui gui) {
 		waiterGui = gui;

@@ -39,6 +39,7 @@ public class WaiterGui implements Gui {
 	}
 
 	public static List<Location> locations = new ArrayList<Location>();
+	public static List<FoodGui> foodItems = new ArrayList<FoodGui>();
 
 	protected WaiterAgent agent = null;
 	private FoodGui food = null;
@@ -93,14 +94,12 @@ public class WaiterGui implements Gui {
 		}
 
 
-		if ((xPos < -5) || (yPos < -5))
+		if ((xPos == -30) && (yPos == -30))
 		{
 			if (headingBack)
 			{
 				agent.msgLeftCustomer();
 				headingBack = false;
-				xPos = -30;
-				yPos = -30;
 			}
 		}    
 
@@ -157,6 +156,7 @@ public class WaiterGui implements Gui {
 	
 	public void procureFood(String choice, int t) {
 		food = new FoodGui(this, choice, false, xPos, yPos, t);
+		foodItems.add(food);
 		animationPanel.addGui(food);
 		food.moveWithWaiter();
 	}
@@ -174,12 +174,7 @@ public class WaiterGui implements Gui {
 	}
 
 	public void DoDeliverFood(int t, String choice, CustomerGui custGui) {
-		animationPanel.removeGui(food);
-		food = null;
-		FoodGui f = new FoodGui(this, choice, true, xPos, yPos, t);
-		animationPanel.addGui(f);
-		f.moveToTable();
-		custGui.TakeFood(f);
+		food.moveToTable();
 	}
 	
 	public void setBreak() {
@@ -187,6 +182,22 @@ public class WaiterGui implements Gui {
 	}
 	public boolean IsOnBreak() {
 		return agent.onBreak;
+	}
+	
+	public void DoClearTable(int t) {
+		for (FoodGui f : foodItems) {
+			System.out.println ("Clearing food from table " + t);
+			if (f.tableNumber == t) {
+				f.visible = false;
+			}
+			//break;
+		}
+	}
+	public boolean isHome() {
+		if ((xPos == -30) && (yPos == -30)) {
+			return true;
+		}
+		return false;
 	}
 
 

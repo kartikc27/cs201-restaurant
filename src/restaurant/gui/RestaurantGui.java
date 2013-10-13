@@ -62,7 +62,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
     	setBounds(0,0,screenSize.width, screenSize.height);
        
 
-        Dimension restDim = new Dimension(screenSize.width, (int) (screenSize.height * .75));
+        Dimension restDim = new Dimension(screenSize.width/2, (int) (screenSize.height * .75));
         restPanel = new RestaurantPanel(this);
         restPanel.setPreferredSize(restDim);
         restPanel.setMinimumSize(restDim);
@@ -74,7 +74,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
         InfoLayout.add(restPanel);
         
         // Now, setup the info panel
-        Dimension infoDim = new Dimension(screenSize.width, (int) (screenSize.height * .22));
+        Dimension infoDim = new Dimension(screenSize.width/2, (int) (screenSize.height * .22));
         infoPanel = new JPanel();
         infoPanel.setPreferredSize(infoDim);
         infoPanel.setMinimumSize(infoDim);
@@ -194,7 +194,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
      */
     public static void main(String[] args) {
         RestaurantGui gui = new RestaurantGui();
-        gui.setTitle("Rami's Restaurant");
+        gui.setTitle("Rami's Restaurant - Kartik");
         gui.setVisible(true);
         gui.setResizable(false);
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

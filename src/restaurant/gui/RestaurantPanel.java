@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -14,9 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import restaurant.CashierAgent;
 import restaurant.CookAgent;
 import restaurant.CustomerAgent;
 import restaurant.HostAgent;
+import restaurant.MarketAgent;
 import restaurant.WaiterAgent;
 
 /**
@@ -34,10 +38,15 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     
     //private WaiterAgent waiter = new WaiterAgent("Kartik");
     //private WaiterGui waiterGui = new WaiterGui(waiter);
-    
+	private List<MarketAgent> markets = new ArrayList<MarketAgent>();  
+	
     private CookAgent cook = new CookAgent("Sarah"); 
     private CookGui cookGui = new CookGui(cook);
-
+    private CashierAgent cashier = new CashierAgent("David");
+    
+    private MarketAgent market1 = new MarketAgent("Market 1", 10, 10, 10, 10, cook);
+    private MarketAgent market2 = new MarketAgent("Market 2", 0, 0, 0, 0, cook);
+    private MarketAgent market3 = new MarketAgent("Market 3", 7, 15, 21, 11, cook);
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
     private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 
@@ -62,10 +71,21 @@ public class RestaurantPanel extends JPanel implements ActionListener {
         gui.animationPanel.addGui(hostGui);
         host.startThread();
         
+        markets.add(market1);
+        markets.add(market2);
+        markets.add(market3);
+        cook.addMarkets(markets);
         
         gui.animationPanel.addGui(cookGui);
         cook.setGui(cookGui);
         cook.startThread();
+        
+       
+        
+        
+        for (MarketAgent m : markets) {
+        	m.startThread();
+        }
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
@@ -158,6 +178,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		CustomerGui g = new CustomerGui(c, gui);
     		gui.animationPanel.addGui(g);
     		c.setHost(host);
+    		c.setCashier(cashier);
     		c.setGui(g);
     		g.setAnimationPanel(gui.animationPanel);
     		customers.add(c);
@@ -172,7 +193,8 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     		w.setGui(g);
     		w.setCook(cook);
     		w.setHost(host);
-    		host.addWaiter(w);
+    		w.setCashier(cashier);
+    		host.msgWaiterReporting(w);
     		g.setAnimationPanel(gui.animationPanel);
     		gui.animationPanel.addGui(g);
     		w.startThread();

@@ -19,7 +19,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
    
     private Image bufferImage;
     private Dimension bufferSize;
-    private int frameDisplay = 5;
+    private int frameDisplay = 2;
 
     private List<Gui> guis = new ArrayList<Gui>();
 

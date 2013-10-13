@@ -25,7 +25,7 @@ public class HostGui implements Gui {
 
 
     public void draw(Graphics2D g) {
-    	Image icon = new ImageIcon("res/Rami.png").getImage();
+    	Image icon = new ImageIcon("../restaurant_chillaka/res/Rami.png").getImage();
         g.drawImage(icon, xPos, yPos, null);
     }
 

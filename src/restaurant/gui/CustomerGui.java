@@ -96,17 +96,9 @@ public class CustomerGui implements Gui{
 		command = Command.LeaveRestaurant;
 	}
 	
-	public void TakeFood(FoodGui food) {
-		this.food = food;
-	}
-	
 	public void setAnimationPanel(AnimationPanel ap) {
 		animationPanel = ap;
 	}
 	
-	public void FinishFood()
-	{
-		animationPanel.removeGui(food);
-		food = null;
-	}
+	
 }

@@ -89,17 +89,7 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
         
         isHungry.setEnabled(false);
         addPersonB.setEnabled(false);
-    }
-    
-    
-    public void keyTyped(KeyEvent e) {
-    	name = nameField.getText();
-    	if ((name != null) && !name.isEmpty()){
-    		isHungry.setEnabled(true);
-            addPersonB.setEnabled(true);
-    	}
-    }
-    		
+    }	
     	
     
 
@@ -166,13 +156,26 @@ public class ListPanel extends JPanel implements ActionListener, KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 
 	@Override
-	public void keyReleased(KeyEvent arg0) {
+	public void keyReleased(KeyEvent e) {
+		name = nameField.getText();
+    	if ((name != null) && !name.isEmpty()){
+    		isHungry.setEnabled(true);
+            addPersonB.setEnabled(true);
+    	}
+    	else
+    		isHungry.setEnabled(false);
+	}
+
+
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}

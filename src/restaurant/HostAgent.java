@@ -72,6 +72,10 @@ public class HostAgent extends Agent {
 		stateChanged();
 	}
 
+	public void msgWaiterReporting(WaiterAgent w) {
+		waiters.add((new MyWaiter(w, 0)));
+		stateChanged();
+	}
 	public void msgTableIsFree(int table) {
 		for (Table tbl : tables) {
 			if (tbl.tableNumber == table) {
@@ -85,7 +89,7 @@ public class HostAgent extends Agent {
 	{
 		if (waiters.size() > 1) {
 			for (MyWaiter mw : waiters) {
-				if (mw.waiter.getName() == w.getName()) {
+				if (mw.waiter.getName().equals(w.getName())) {
 					mw.onBreak = true;
 					mw.waiter.msgBreakApproved();
 				}
@@ -131,10 +135,6 @@ public class HostAgent extends Agent {
 				}
 			}
 		}
-		else {
-			stateChanged();
-			return true;
-		}
 
 		return false;
 	}
@@ -157,9 +157,6 @@ public class HostAgent extends Agent {
 		return hostGui;
 	}
 
-	public void addWaiter(WaiterAgent w) {
-		waiters.add((new MyWaiter(w, 0)));
-	}
 
 	private class Table {
 		CustomerAgent occupiedBy;

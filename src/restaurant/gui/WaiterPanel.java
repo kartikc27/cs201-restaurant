@@ -86,11 +86,8 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
     }
     
     
-    public void keyTyped(KeyEvent e) {
-    	name = nameField.getText();
-    	if ((name != null) && !name.isEmpty()){
-            addPersonB.setEnabled(true);
-    	}
+    public void keyTyped(KeyEvent arg0) {
+    	
     }
     		
     	
@@ -165,7 +162,13 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		name = nameField.getText();
+    	if ((name != null) && !name.isEmpty()){
+    		wantBreak.setEnabled(true);
+            addPersonB.setEnabled(true);
+    	}
+    	else
+    		wantBreak.setEnabled(false);
 		
 	}
 }
