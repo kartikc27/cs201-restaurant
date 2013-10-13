@@ -16,7 +16,7 @@ public class CustomerAgent extends Agent {
 	private String choice;
 	Timer timer = new Timer();
 	private CustomerGui customerGui;
-
+	private boolean reorder = false;
 
 	// agent correspondents
 	private HostAgent host;
@@ -27,7 +27,7 @@ public class CustomerAgent extends Agent {
 	private Check check;
 
 	public enum AgentState
-	{DoingNothing, WaitingInRestaurant, BeingSeated, OrderingFood, DoneOrdering, Eating, DoneEating, Leaving, WaitingForCheck};
+	{DoingNothing, WaitingInRestaurant, BeingSeated, OrderingFood, WaitingForFood, Eating, DoneEating, Leaving, WaitingForCheck};
 	private AgentState state = AgentState.DoingNothing;//The start state
 
 	public enum AgentEvent 
@@ -89,6 +89,7 @@ public class CustomerAgent extends Agent {
 	public void msgFoodUnavailable() {
 		print ("Received msgFoodUnavailable");
 		event = AgentEvent.foodUnavailable;
+		reorder = true;
 		stateChanged();
 	}
 
@@ -137,22 +138,30 @@ public class CustomerAgent extends Agent {
 		}
 
 		if (state == AgentState.OrderingFood && event == AgentEvent.order){
-			state = AgentState.DoneOrdering;
+			state = AgentState.WaitingForFood;
 			OrderFood();
 			return true;
 		}
 
-		if (state == AgentState.DoneOrdering && event == AgentEvent.foodReceived){
-			state = AgentState.Eating;
-			EatFood();
-			return true;
+		if (state == AgentState.WaitingForFood) {
+
+			if (event == AgentEvent.foodReceived){
+				state = AgentState.Eating;
+				EatFood();
+				return true;
+
+			}
+
+			if (event == AgentEvent.foodUnavailable) {
+				state = AgentState.OrderingFood;
+				event = AgentEvent.order;
+				print ("REORDERING");
+				//OrderFood();
+				return true;
+			}
+
 		}
 
-		if (state == AgentState.DoneOrdering && event == AgentEvent.foodUnavailable){
-			state = AgentState.OrderingFood;
-			LeaveTable();
-			return true;
-		}
 
 		if (state == AgentState.Eating && event == AgentEvent.doneEating){
 			askForCheck();
@@ -188,13 +197,29 @@ public class CustomerAgent extends Agent {
 	}
 
 	private void OrderFood() {
-		Random randomGenerator = new Random();
+		print ("Ordering food");
+		/*Random randomGenerator = new Random();
 		int randomInt = randomGenerator.nextInt(4);
 		choice = myMenu.menuItems[randomInt];
+		waiter.msgHereIsMyChoice(choice, this);*/
+		if (!reorder) {
+			choice = name;
+			if (choice.equals("steak"))
+				choice = "Steak";
+			if (choice.equals("pizza"))
+				choice = "Pizza";
+			if (choice.equals("salad"))
+				choice = "Salad";
+			if (choice.equals("chicken"))
+				choice = "Chicken";
+		}
+		else {
+			Random randomGenerator = new Random();
+			int randomInt = randomGenerator.nextInt(4);
+			choice = myMenu.menuItems[randomInt];
+		}
 		waiter.msgHereIsMyChoice(choice, this);
-		/*String choice = name;
-		waiter.msgHereIsMyChoice(choice, this);
-		Do ("I would like to order " + choice); */
+		Do ("I would like to order " + choice); 
 	}
 
 	private void EatFood() {
@@ -212,7 +237,6 @@ public class CustomerAgent extends Agent {
 	private void askForCheck() {
 		print("Asking for check");
 		waiter.msgDoneEating(this); 
-		stateChanged();
 	}
 
 	private void payCheckAndLeave() {

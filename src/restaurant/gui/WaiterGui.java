@@ -183,10 +183,11 @@ public class WaiterGui implements Gui {
 	public boolean IsOnBreak() {
 		return agent.onBreak;
 	}
-	
+	public void setOffBreak() {
+		agent.onBreak = false;
+	}
 	public void DoClearTable(int t) {
 		for (FoodGui f : foodItems) {
-			System.out.println ("Clearing food from table " + t);
 			if (f.tableNumber == t) {
 				f.visible = false;
 			}

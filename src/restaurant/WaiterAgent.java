@@ -2,8 +2,11 @@ package restaurant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
+import restaurant.CustomerAgent.AgentEvent;
 import restaurant.gui.WaiterGui;
 import agent.Agent;
 
@@ -21,6 +24,8 @@ public class WaiterAgent extends Agent {
 	public Semaphore atCook = new Semaphore(0, true);
 	public Semaphore orderGiven = new Semaphore(0, true);
 	public Semaphore serveFood = new Semaphore(0, true);
+
+	Timer breakTimer = new Timer();
 
 	boolean readyCustomers = false;
 	boolean WantBreak = false;
@@ -84,7 +89,7 @@ public class WaiterAgent extends Agent {
 
 
 	public void msgSitAtTable(CustomerAgent cust, int table) {
-		print("received message sit at table");
+		print("Received message sit at table");
 		customers.add(new MyCustomer(cust, table, CustomerState.waiting));
 		//WantBreak = true;
 		stateChanged();
@@ -93,7 +98,7 @@ public class WaiterAgent extends Agent {
 	public void msgImReadyToOrder(CustomerAgent cust) {
 		for (MyCustomer mc : customers)
 		{
-			if (cust.getName().equals(mc.c.getName())) {
+			if (cust.equals(mc.c)) {
 				mc.s = CustomerState.readyToOrder;
 				stateChanged();
 			}
@@ -102,10 +107,11 @@ public class WaiterAgent extends Agent {
 	}
 
 	public void msgHereIsMyChoice(String choice, CustomerAgent c) {
+		print ("Received choice of " + choice + " from " + c.getName());
 		orderGiven.release();
 		for (MyCustomer mc : customers)
 		{
-			if (c.getName() == mc.c.getName()) {
+			if (c == mc.c){
 				mc.choice = choice;
 				mc.s = CustomerState.ordered;
 				stateChanged();
@@ -130,13 +136,10 @@ public class WaiterAgent extends Agent {
 	}
 
 	public void msgLeaving(CustomerAgent c) {
-		
 		for (MyCustomer mc : customers)
 		{
-			if (c.getName().equals(mc.c.getName())) {
+			if (c.equals(mc.c)) {
 				host.msgTableIsFree(mc.t);
-				System.out.println ("TABLE " + mc.t + " IS FREE");
-				//customers.remove(mc);
 				mc.s = CustomerState.done;
 				stateChanged();
 			}
@@ -202,6 +205,7 @@ public class WaiterAgent extends Agent {
 			if(!customers.isEmpty()){
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.asked) {
+						orderGiven.drainPermits();
 						try {
 							orderGiven.acquire();
 						} catch (InterruptedException e) {
@@ -221,7 +225,6 @@ public class WaiterAgent extends Agent {
 
 				for(MyCustomer c:customers){
 					if(c.s == CustomerState.doneEating) {
-						waiterGui.DoClearTable(c.t);
 						prepareCheck(c);
 						return true;
 					}
@@ -244,6 +247,7 @@ public class WaiterAgent extends Agent {
 
 				for (MyCustomer mc : customers) {
 					if (mc.s == CustomerState.notAvailable) {
+						print ("TELLING CUSTOMER FOOD UNAVAILABLE");
 						TellCustomerFoodUnavailable(mc);
 						return true;
 					}
@@ -277,6 +281,7 @@ public class WaiterAgent extends Agent {
 				}
 			}
 		}
+		
 		return false;
 	}
 
@@ -292,7 +297,7 @@ public class WaiterAgent extends Agent {
 			e.printStackTrace();
 		}
 		mc.c.msgFoodUnavailable();
-		mc.s = CustomerState.done;
+		mc.s = CustomerState.seated;
 	}
 
 
@@ -424,6 +429,7 @@ public class WaiterAgent extends Agent {
 	{
 		print("Preparing bill for Customer");
 		customer.s = CustomerState.done;
+		waiterGui.DoClearTable(customer.t);
 		Check c = new Check(customer.c, customer.t, customer.choice);
 		cashier.msgGiveCheckToCashier(c);
 		waiterGui.DoGoToTable(customer.t); 

@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -40,6 +42,7 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
     private String name;
     public JCheckBox wantBreak = new JCheckBox();
     public JPanel namePane = new JPanel();
+    private Timer breakTimer = new Timer();
 
    
     
@@ -110,8 +113,16 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
         		if (wantBreak.isSelected())
         		{
         			wantBreak.setSelected(false);
-        			restPanel.markBreak(name);
+        			restPanel.markBreak(name, true);
         			restPanel.showInfo(type, name);
+        			
+        			/*breakTimer.schedule(new TimerTask() {
+        				public void run() {
+        					restPanel.markBreak(name, false);
+        					restPanel.showInfo(type, name);
+        				}
+        			},
+        			10000);*/
         		}
         	}
         }

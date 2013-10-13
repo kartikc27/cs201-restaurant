@@ -29,7 +29,7 @@ public class MarketAgent extends Agent {
 	private List<MyFood> orders = new ArrayList<MyFood>();
 
 	private String name;
-	private boolean orderSent;
+	private boolean busy = false;
 
 	public MarketAgent(String name, int numPizza, int numSalad, int numSteak, int numChicken, CookAgent cook) {
 		super();
@@ -43,9 +43,13 @@ public class MarketAgent extends Agent {
 
 	public void msgHereIsMarketOrder(String type, int amt) {
 		print ("Received order of " + type);
-		if(!orderSent) {   
+		if(!busy) {   
 			orders.add(new MyFood(type, amt));
-			orderSent = true;
+			busy = true;
+		}
+		else {
+			print ("Working on order, please order from another market");
+			cook.msgOrderUnfulfilled();
 		}
 		stateChanged();
 	}
@@ -54,9 +58,9 @@ public class MarketAgent extends Agent {
 	@Override
 	protected boolean pickAndExecuteAnAction() {
 
-		if (orderSent) {
+		if (busy) {
 			completeOrder();
-			orderSent = false;
+			busy = false;
 			return true;
 		}
 		return false;

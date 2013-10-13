@@ -77,6 +77,7 @@ public class HostAgent extends Agent {
 		stateChanged();
 	}
 	public void msgTableIsFree(int table) {
+		print ("Received msgTableIsFree");
 		for (Table tbl : tables) {
 			if (tbl.tableNumber == table) {
 				tbl.setUnoccupied();

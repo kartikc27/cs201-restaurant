@@ -124,7 +124,9 @@ public class CookAgent extends Agent {
 	
 	public void msgOrderUnfulfilled() {
 		sentOrder = false;
-		marketNum = (marketNum + 1) % markets.size();
+		marketNum++;
+		if (marketNum == 3)
+			marketNum = 0;
 		stateChanged();
 	}
 

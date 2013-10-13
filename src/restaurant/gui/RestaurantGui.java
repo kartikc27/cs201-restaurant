@@ -134,9 +134,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
             stateCB.setText("Break?");
           //Should checkmark be there? 
             stateCB.setSelected(waiter.getGui().IsOnBreak());
-          //Is customer hungry? Hack. Should ask customerGui
             stateCB.setEnabled(!waiter.getGui().IsOnBreak());
-          // Hack. Should ask customerGui
             infoLabel.setText(
                "<html><pre>     Name: " + waiter.getName() + " </pre></html>");
             infoPanel.validate();
@@ -159,7 +157,7 @@ public class RestaurantGui extends JFrame implements ActionListener {
         if (e.getSource() == stateCB) {
             if (currentPerson instanceof WaiterAgent) {
                 WaiterAgent w = (WaiterAgent) currentPerson;
-                w.getGui().IsOnBreak();
+                w.getGui().setBreak();
                 stateCB.setEnabled(false);
             }
         }

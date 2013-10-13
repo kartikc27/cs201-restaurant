@@ -213,14 +213,17 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     	}	
     }
     
-    public void markBreak(String name)
+    public void markBreak(String name, boolean onBreak)
     {
     	for (int i = 0; i < waiters.size(); i++)
     	{
     		 WaiterAgent temp = waiters.get(i);
     		 if (temp.getName() == name)
     		 {
-    			  temp.getGui().setBreak();
+    			 if (onBreak)
+    				 temp.getGui().setBreak();
+    			 else if (!onBreak) 
+    				 temp.getGui().setOffBreak();
     		 }
     	}	
     }
