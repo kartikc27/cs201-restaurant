@@ -51,7 +51,6 @@ public class MarketAgent extends Agent {
 		stateChanged();
 	}
 
-
 	@Override
 	protected boolean pickAndExecuteAnAction() {
 
