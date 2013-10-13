@@ -25,6 +25,7 @@ public class HostAgent extends Agent {
 	//Later we will see how it is implemented
 
 	private String name;
+	private boolean alreadySeated = false;
 
 	public HostGui hostGui = null;
 
@@ -57,7 +58,7 @@ public class HostAgent extends Agent {
 		return name;
 	}
 
-	public List getWaitingCustomers() {
+	public List<CustomerAgent> getWaitingCustomers() {
 		return waitingCustomers;
 	}
 
@@ -106,14 +107,17 @@ public class HostAgent extends Agent {
 
 	// removes customer when customer chooses to leave early
 	public void msgLeaving(CustomerAgent c) {
-		waitingCustomers.remove(c);
-		stateChanged();
+		if (!alreadySeated) {
+			waitingCustomers.remove(c);
+			stateChanged();
+		}
 	}
 
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
 	 */
 	protected boolean pickAndExecuteAnAction() {
+		alreadySeated = false;
 		if (!waiters.isEmpty())
 		{
 			for (Table table : tables) {
@@ -139,6 +143,7 @@ public class HostAgent extends Agent {
 						}
 						waiters.get(WaiterWithMinTables).numTables++;
 						if (waitingCustomers.size() > 0) {
+							alreadySeated = true;
 							if (waitingCustomers.contains(waitingCustomers.get(0))) {
 								tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
 							}
