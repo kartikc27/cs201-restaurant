@@ -90,15 +90,17 @@ public class HostAgent extends Agent {
 	{
 		if (waiters.size() > 1) {
 			for (MyWaiter mw : waiters) {
-				if (mw.waiter.getName().equals(w.getName())) {
+				if (mw.waiter.equals(w)){
 					mw.onBreak = true;
 					mw.waiter.msgBreakApproved();
+					stateChanged();
 					break;
 				}
 			}
 		}
 		else {
 			w.msgBreakDenied();
+			stateChanged();
 		}
 	}
 

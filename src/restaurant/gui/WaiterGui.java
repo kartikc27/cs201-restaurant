@@ -11,6 +11,8 @@ import restaurant.WaiterAgent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.ImageIcon;
@@ -56,9 +58,11 @@ public class WaiterGui implements Gui {
 	private int tableNumber = 0;
 	public boolean headingBack = false;
 	private AnimationPanel animationPanel = null;
+	Timer breakTimer = new Timer();
+	private RestaurantPanel restPanel;
 
-
-	public WaiterGui(WaiterAgent agent) {
+	public WaiterGui(WaiterAgent agent, RestaurantPanel rp) {
+		restPanel = rp;
 		this.agent = agent;
 		int n = 150;
 		for (int i = 0; i < 3; i++) {
@@ -184,7 +188,14 @@ public class WaiterGui implements Gui {
 		return agent.onBreak;
 	}
 	public void setOffBreak() {
-		agent.onBreak = false;
+		breakTimer.schedule(new TimerTask() {
+			public void run() {
+				System.out.println(agent.getName() + ": break is over");
+				agent.takingBreak.release();
+				restPanel.showInfo("Waiters", agent.getName());
+			}
+		},
+		15000);
 	}
 	public void DoClearTable(int t) {
 		for (FoodGui f : foodItems) {

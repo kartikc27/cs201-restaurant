@@ -42,7 +42,6 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
     private String name;
     public JCheckBox wantBreak = new JCheckBox();
     public JPanel namePane = new JPanel();
-    private Timer breakTimer = new Timer();
 
    
     
@@ -113,16 +112,9 @@ public class WaiterPanel extends JPanel implements ActionListener, KeyListener{
         		if (wantBreak.isSelected())
         		{
         			wantBreak.setSelected(false);
-        			restPanel.markBreak(name, true);
+        			restPanel.markBreak(name);
         			restPanel.showInfo(type, name);
         			
-        			breakTimer.schedule(new TimerTask() {
-        				public void run() {
-        					restPanel.markBreak(name, false);
-        					restPanel.showInfo(type, name);
-        				}
-        			},
-        			5000);
         		}
         	}
         }

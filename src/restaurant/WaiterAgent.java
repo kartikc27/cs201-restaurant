@@ -24,6 +24,8 @@ public class WaiterAgent extends Agent {
 	public Semaphore atCook = new Semaphore(0, true);
 	public Semaphore orderGiven = new Semaphore(0, true);
 	public Semaphore serveFood = new Semaphore(0, true);
+	
+	public Semaphore takingBreak = new Semaphore(0,true);
 
 	Timer breakTimer = new Timer();
 
@@ -182,15 +184,18 @@ public class WaiterAgent extends Agent {
 	public void msgBreakApproved() { 
 		print ("Break Accepted");
 		onBreak = true;
+		stateChanged();
 	}
 
 	public void msgBreakDenied() {
 		print ("Break Denied");
 		onBreak = false;
+		stateChanged();
 	}
 
 	public void msgWantBreak() {
 		WantBreak = true;
+		stateChanged();
 	}
 
 
@@ -280,6 +285,19 @@ public class WaiterAgent extends Agent {
 					}
 				}
 			}
+		}
+		else if (onBreak) {
+			waiterGui.setOffBreak();
+			takingBreak.drainPermits();
+			try {
+				takingBreak.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			onBreak = false;
+			WantBreak = false;
+			return true;
 		}
 
 		return false;

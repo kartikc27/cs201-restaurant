@@ -42,7 +42,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
 	
     private CookAgent cook = new CookAgent("Sarah"); 
     private CookGui cookGui = new CookGui(cook);
-    private CashierAgent cashier = new CashierAgent("David");
+    private CashierAgent cashier = new CashierAgent("Cashier");
     
     private MarketAgent market1 = new MarketAgent("Market 1", 10, 10, 10, 10, cook);
     private MarketAgent market2 = new MarketAgent("Market 2", 0, 0, 0, 0, cook);
@@ -154,11 +154,9 @@ public class RestaurantPanel extends JPanel implements ActionListener {
             }
         }
         else if (type.equals("Waiters")) {
-        	System.out.println ("Trying to show info " + waiters.size());
             for (int i = 0; i < waiters.size(); i++) {
                 WaiterAgent temp = waiters.get(i);
                 if (temp.getName() == name) {
-                	System.out.println ("Trying to show info 2");
                     gui.updateInfoPanel(temp);
                 }
             }
@@ -167,7 +165,6 @@ public class RestaurantPanel extends JPanel implements ActionListener {
 
     /**
      * Adds a customer or waiter to the appropriate list
-     *
      * @param type indicates whether the person is a customer or waiter (later)
      * @param name name of person
      */
@@ -188,7 +185,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     	if (type.equals("Waiters")) {
     		System.out.println ("adding waiter");
     		WaiterAgent w = new WaiterAgent(name);	
-    		WaiterGui g = new WaiterGui(w);
+    		WaiterGui g = new WaiterGui(w, this);
     		waiters.add(w);
     		w.setGui(g);
     		w.setCook(cook);
@@ -213,17 +210,14 @@ public class RestaurantPanel extends JPanel implements ActionListener {
     	}	
     }
     
-    public void markBreak(String name, boolean onBreak)
+    public void markBreak(String name)
     {
     	for (int i = 0; i < waiters.size(); i++)
     	{
     		 WaiterAgent temp = waiters.get(i);
     		 if (temp.getName() == name)
     		 {
-    			 if (onBreak)
-    				 temp.getGui().setBreak();
-    			 else if (!onBreak) 
-    				 temp.getGui().setOffBreak();
+    			temp.getGui().setBreak();
     		 }
     	}	
     }
