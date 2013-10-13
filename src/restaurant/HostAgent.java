@@ -104,6 +104,7 @@ public class HostAgent extends Agent {
 		}
 	}
 
+	// removes customer when customer chooses to leave early
 	public void msgLeaving(CustomerAgent c) {
 		waitingCustomers.remove(c);
 		stateChanged();
