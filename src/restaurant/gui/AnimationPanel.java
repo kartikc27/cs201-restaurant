@@ -1,7 +1,5 @@
 package restaurant.gui;
 
-// ADD THE TABLE LOCATIONS HERE. HOST GUI GETS LOCATIONS FROM THE ANIMATION PANEL. MAINTAIN LIST OF TABLES HERE
-
 import javax.swing.*;
 
 import java.awt.*;
