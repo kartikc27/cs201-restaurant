@@ -104,6 +104,11 @@ public class HostAgent extends Agent {
 		}
 	}
 
+	public void msgLeaving(CustomerAgent c) {
+		waitingCustomers.remove(c);
+		stateChanged();
+	}
+
 	/**
 	 * Scheduler.  Determine what action is called for, and do it.
 	 */
@@ -112,7 +117,7 @@ public class HostAgent extends Agent {
 		{
 			for (Table table : tables) {
 				if (!table.isOccupied()) {
-					if (!waitingCustomers.isEmpty()) {
+					if (waitingCustomers.size() > 0) {
 						int i = 0;
 						for (MyWaiter m : waiters) {
 							if (m.onBreak)
@@ -132,14 +137,18 @@ public class HostAgent extends Agent {
 							j++;
 						}
 						waiters.get(WaiterWithMinTables).numTables++;
-						tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
-						try {
-							seatCustomer.acquire();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						if (waitingCustomers.size() > 0) {
+							if (waitingCustomers.contains(waitingCustomers.get(0))) {
+								tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
+							}
+							try {
+								seatCustomer.acquire();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							return true;
 						}
-						return true;
 					}
 				}
 			}
@@ -199,5 +208,6 @@ public class HostAgent extends Agent {
 	public void msgCustomerSeated() {
 		seatCustomer.release();
 	}
+
 }
 

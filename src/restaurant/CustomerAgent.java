@@ -1,5 +1,7 @@
 package restaurant;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,6 +21,11 @@ public class CustomerAgent extends Agent {
 	private boolean reorder = false;
 	private double money;
 	public boolean oweMoney = false;
+	private double chanceOfStaying = .75;
+
+	public List<String> availableOptions = new ArrayList<String>();
+
+
 
 	// agent correspondents
 	private HostAgent host;
@@ -33,7 +40,7 @@ public class CustomerAgent extends Agent {
 	private AgentState state = AgentState.DoingNothing;//The start state
 
 	public enum AgentEvent 
-	{none, gotHungry, followWaiter, seated, order, foodReceived, foodUnavailable, doneEating, doneLeaving, checkArrived, punish};
+	{none, gotHungry, followWaiter, seated, order, foodReceived, foodUnavailable, doneEating, doneLeaving, checkArrived, punish, decidedToWait, leftEarly};
 	AgentEvent event = AgentEvent.none;
 
 	/**
@@ -76,6 +83,15 @@ public class CustomerAgent extends Agent {
 
 	public void msgFollowMe(Menu menu) {
 		myMenu = menu;
+		
+		// Customer browses menu to see what he/she can afford
+		availableOptions.clear();
+		for (int i = 0; i < myMenu.menuItems.length; i++) {
+			if (myMenu.priceMap.get(myMenu.menuItems[i]) <= money) {
+				availableOptions.add(myMenu.menuItems[i]);
+			}
+		}
+		
 		print("Received msgFollowMe");
 		event = AgentEvent.followWaiter;
 		stateChanged();
@@ -96,6 +112,7 @@ public class CustomerAgent extends Agent {
 	public void msgFoodUnavailable() {
 		print ("Received msgFoodUnavailable");
 		event = AgentEvent.foodUnavailable;
+		availableOptions.remove(choice);
 		reorder = true;
 		stateChanged();
 	}
@@ -118,7 +135,7 @@ public class CustomerAgent extends Agent {
 		event = AgentEvent.doneLeaving;
 		stateChanged();
 	}
-	
+
 	public void msgPunish() {
 		event = AgentEvent.punish;
 		oweMoney = true;
@@ -137,11 +154,26 @@ public class CustomerAgent extends Agent {
 			GoToRestaurant();
 			return true;
 		}
-		
+
 		if (state == AgentState.DoingAbsolutelyNothing && event == AgentEvent.gotHungry ){
 			state = AgentState.WaitingInRestaurant;
 			GoToRestaurant();
 			return true;
+		}
+		
+		if (state == AgentState.WaitingInRestaurant && event == AgentEvent.gotHungry) {
+			if(Math.random() <= chanceOfStaying)
+	    	{
+				event = AgentEvent.decidedToWait;
+	    		return true;
+	    	}
+	    	else 
+	    	{
+	    		state = AgentState.DoingNothing;
+	    		event = AgentEvent.leftEarly;
+	    		LeaveTableWithoutEating();
+	    		return true;
+	    	}
 		}
 
 		if (state == AgentState.WaitingInRestaurant && event == AgentEvent.followWaiter ){
@@ -192,7 +224,7 @@ public class CustomerAgent extends Agent {
 			state = AgentState.DoingNothing;
 			return true;
 		}
-		
+
 		if ((state == AgentState.DoingNothing) && (event == AgentEvent.punish)) {
 			stealMoney();
 			state = AgentState.DoingAbsolutelyNothing;
@@ -220,39 +252,64 @@ public class CustomerAgent extends Agent {
 	}
 
 	private void OrderFood() {
+		
 		print ("Ordering food");
-		/*Random randomGenerator = new Random();
-		int randomInt = randomGenerator.nextInt(4);
-		choice = myMenu.menuItems[randomInt];
-		waiter.msgHereIsMyChoice(choice, this);*/
-		if ((name.equals("salad")) || (name.equals("Salad")) || (name.equals("steak")) || (name.equals("Steak"))  || (name.equals("pizza")) || (name.equals("Pizza")) || (name.equals("chicken")) || (name.equals("Chicken"))) 
-		{
-			if (!reorder) {
-				choice = name;
-				if (choice.equals("steak"))
-					choice = "Steak";
-				if (choice.equals("pizza"))
-					choice = "Pizza";
-				if (choice.equals("salad"))
-					choice = "Salad";
-				if (choice.equals("chicken"))
-					choice = "Chicken";
-			}
-			else {
-				Random randomGenerator = new Random();
-				int randomInt = randomGenerator.nextInt(4);
-				choice = myMenu.menuItems[randomInt];
-			}
-			
-		}
-		else {
+		
+		
+		if ((name.equals("flake")) || (name.equals("Flake"))) {
 			Random randomGenerator = new Random();
 			int randomInt = randomGenerator.nextInt(4);
 			choice = myMenu.menuItems[randomInt];
+			Do ("I would like to order " + choice); 
+			waiter.msgHereIsMyChoice(choice, this);
 		}
-		waiter.msgHereIsMyChoice(choice, this);
-		Do ("I would like to order " + choice); 
+		
+		else {
+			if (availableOptions.size() <= 0) {
+				state = AgentState.DoingNothing;
+				LeaveTable();
+			}
+			else if ((name.equals("salad")) || (name.equals("Salad")) || (name.equals("steak")) || (name.equals("Steak"))  || (name.equals("pizza")) || (name.equals("Pizza")) || (name.equals("chicken")) || (name.equals("Chicken")))
+			{
+				if (!reorder) {
+					choice = name;
+					if (choice.equals("steak"))
+						choice = "Steak";
+					if (choice.equals("pizza"))
+						choice = "Pizza";
+					if (choice.equals("salad"))
+						choice = "Salad";
+					if (choice.equals("chicken"))
+						choice = "Chicken";
+					
+					if (availableOptions.contains(choice)) {
+						Do ("I would like to order " + choice); 
+						waiter.msgHereIsMyChoice(choice, this);
+					}
+					else {
+						reorder = true;
+						
+					}
+				}
+				
+				if (reorder) {
+					Random randomGenerator = new Random();
+					int randomInt = randomGenerator.nextInt(availableOptions.size());
+					choice = myMenu.menuItems[randomInt];
+					waiter.msgHereIsMyChoice(choice, this);
+					Do ("I would like to order " + choice);
+				}
+			}
+			else {
+				Random randomGenerator = new Random();
+				int randomInt = randomGenerator.nextInt(availableOptions.size());
+				choice = myMenu.menuItems[randomInt];
+				waiter.msgHereIsMyChoice(choice, this);
+				Do ("I would like to order " + choice);
+			}
+		}
 	}
+
 
 	private void EatFood() {
 		Do("Eating Food");
@@ -275,7 +332,7 @@ public class CustomerAgent extends Agent {
 
 		timer.schedule(new TimerTask() {
 			public void run() {
-				
+
 				if (check.price > money) {
 					cashier.msgPayingCheck(check, money-check.price);
 					print ("Couldn't afford check");
@@ -298,7 +355,17 @@ public class CustomerAgent extends Agent {
 	private void LeaveTable() {
 		Do("Leaving.");
 		waiter.msgLeaving(this);
+		
+	
 		customerGui.DoExitRestaurant();
+	}
+	
+	private void LeaveTableWithoutEating() {
+		Do ("Leaving");
+		if (waiter != null)
+			waiter.msgLeaving(this);
+		else
+			host.msgLeaving(this);
 	}
 
 	// Accessors, etc.
@@ -332,7 +399,7 @@ public class CustomerAgent extends Agent {
 	public CustomerGui getGui() {
 		return customerGui;
 	}
-	
+
 	private void stealMoney() {
 		print ("Stole 100 dollars");
 		money += 100;

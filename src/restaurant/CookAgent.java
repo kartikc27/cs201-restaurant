@@ -98,6 +98,7 @@ public class CookAgent extends Agent {
 			if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
 				orderFromMarket(entry.getKey());
 				entry.getValue().orderPending = true;
+				return true;
 			}
 		}
 		

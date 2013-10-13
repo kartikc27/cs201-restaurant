@@ -144,6 +144,7 @@ public class WaiterAgent extends Agent {
 		{
 			if (c.equals(mc.c)) {
 				host.msgTableIsFree(mc.t);
+				host.msgLeaving(mc.c);
 				mc.s = CustomerState.gone;
 				stateChanged();
 			}
@@ -306,6 +307,7 @@ public class WaiterAgent extends Agent {
 					if (!pendingActions) {
 						host.msgIWantABreak(this);
 					}
+					return true;
 				}
 			}
 		}
