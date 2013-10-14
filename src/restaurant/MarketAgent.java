@@ -23,7 +23,7 @@ public class MarketAgent extends Agent {
 		}
 	}
 	private Map<String, Integer> inventory = new HashMap<String, Integer>();
-	private List<MyFood> orders = new ArrayList<MyFood>();
+	MyFood order;
 
 	private String name;
 	private boolean busy = false;
@@ -41,7 +41,7 @@ public class MarketAgent extends Agent {
 	public void msgHereIsMarketOrder(String type, int amt) {
 		print ("Received order of " + type);
 		if(!busy) {   
-			orders.add(new MyFood(type, amt));
+			order = new MyFood(type, amt);
 			busy = true;
 		}
 		else if (busy) {
@@ -62,10 +62,10 @@ public class MarketAgent extends Agent {
 	}
 
 	private void completeOrder() {
-		if (orders.get(0).amount < inventory.get(orders.get(0).type)) {
+		if (order.amount < inventory.get(order.type)) {
 			timer.schedule(new TimerTask() {
 				public void run() {  
-					cook.msgOrderFulfilled(orders.get(0).type, orders.get(0).amount);
+					cook.msgOrderFulfilled(order.type, order.amount);
 					print("Fulfilled order");
 					
 				}},

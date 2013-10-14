@@ -91,6 +91,7 @@ public class CustomerAgent extends Agent {
 				availableOptions.add(myMenu.menuItems[i]);
 			}
 		}
+		reorder = false;
 
 		print("Received msgFollowMe");
 		event = AgentEvent.followWaiter;
@@ -255,7 +256,6 @@ public class CustomerAgent extends Agent {
 
 		print ("Ordering food");
 
-
 		if ((name.equals("flake")) || (name.equals("Flake"))) {
 			Random randomGenerator = new Random();
 			int randomInt = randomGenerator.nextInt(4);
@@ -286,16 +286,12 @@ public class CustomerAgent extends Agent {
 						Do ("I would like to order " + choice); 
 						waiter.msgHereIsMyChoice(choice, this);
 					}
-					else {
-						reorder = true;
-
-					}
 				}
 
 				if (reorder) {
 					Random randomGenerator = new Random();
 					int randomInt = randomGenerator.nextInt(availableOptions.size());
-					choice = myMenu.menuItems[randomInt];
+					choice = availableOptions.get(randomInt);
 					waiter.msgHereIsMyChoice(choice, this);
 					Do ("I would like to order " + choice);
 				}
@@ -303,7 +299,7 @@ public class CustomerAgent extends Agent {
 			else {
 				Random randomGenerator = new Random();
 				int randomInt = randomGenerator.nextInt(availableOptions.size());
-				choice = myMenu.menuItems[randomInt];
+				choice = availableOptions.get(randomInt);
 				waiter.msgHereIsMyChoice(choice, this);
 				Do ("I would like to order " + choice);
 			}
