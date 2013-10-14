@@ -14,7 +14,7 @@ import agent.Agent;
  */
 public class CustomerAgent extends Agent {
 	private String name;
-	private int hungerLevel = 5; // determines length of meal
+	private int hungerLevel = 4; // determines length of meal
 	private String choice;
 	Timer timer = new Timer();
 	private CustomerGui customerGui;
