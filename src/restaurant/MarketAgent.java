@@ -44,7 +44,7 @@ public class MarketAgent extends Agent {
 			orders.add(new MyFood(type, amt));
 			busy = true;
 		}
-		else {
+		else if (busy) {
 			print ("Working on order, please order from another market");
 			cook.msgOrderUnfulfilled();
 		}
@@ -56,7 +56,6 @@ public class MarketAgent extends Agent {
 
 		if (busy) {
 			completeOrder();
-			busy = false;
 			return true;
 		}
 		return false;
@@ -64,13 +63,14 @@ public class MarketAgent extends Agent {
 
 	private void completeOrder() {
 		if (orders.get(0).amount < inventory.get(orders.get(0).type)) {
-			
 			timer.schedule(new TimerTask() {
 				public void run() {  
 					cook.msgOrderFulfilled(orders.get(0).type, orders.get(0).amount);
 					print("Fulfilled order");
+					
 				}},
 				10000);
+			busy = false;
 		}
 		else {
 			cook.msgOrderUnfulfilled();
