@@ -40,6 +40,8 @@ public class HostAgent extends Agent {
 		WaiterAgent waiter;
 		int numTables;
 		boolean onBreak;
+		public boolean breakApproved = false;
+		public boolean breakDenied = false;
 
 	}
 
@@ -92,17 +94,32 @@ public class HostAgent extends Agent {
 		if (waiters.size() > 1) {
 			for (MyWaiter mw : waiters) {
 				if (mw.waiter.equals(w)){
-					mw.onBreak = true;
-					mw.waiter.msgBreakApproved();
+					//mw.onBreak = true;
+					//mw.waiter.msgBreakApproved();
+					mw.breakApproved  = true;
 					stateChanged();
 					break;
 				}
 			}
 		}
 		else {
-			w.msgBreakDenied();
-			stateChanged();
+			for (MyWaiter mw : waiters) {
+				if (mw.waiter.equals(w)){
+					mw.breakDenied = true;
+				}
+			}
 		}
+	}
+	
+	public void msgImOffBreak(WaiterAgent w) {
+		for (MyWaiter mw : waiters) {
+			if (mw.waiter.equals(w)){
+				mw.breakApproved = false;
+				mw.breakDenied = false;
+				mw.onBreak = false;
+			}
+		}
+		
 	}
 
 	// removes customer when customer chooses to leave early
@@ -112,7 +129,7 @@ public class HostAgent extends Agent {
 			stateChanged();
 		}
 	}
-	
+
 	//message from Gui once customer has been seated
 	public void msgCustomerSeated() {
 		seatCustomer.release();
@@ -123,8 +140,20 @@ public class HostAgent extends Agent {
 	 */
 	protected boolean pickAndExecuteAnAction() {
 		alreadySeated = false;
+
 		if (!waiters.isEmpty())
 		{
+			for (MyWaiter m : waiters) {
+				if (!m.onBreak) {
+					if (m.breakApproved) {
+						m.waiter.msgBreakApproved();
+						m.onBreak = true;
+					}
+					else if (m.breakDenied) {
+						m.waiter.msgBreakDenied();
+					}
+				}
+			}
 			for (Table table : tables) {
 				if (!table.isOccupied()) {
 					if (waitingCustomers.size() > 0) {
@@ -215,6 +244,9 @@ public class HostAgent extends Agent {
 			return "table " + tableNumber;
 		}
 	}
+
+
+	
 
 
 }

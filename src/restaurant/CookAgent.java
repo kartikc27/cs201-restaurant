@@ -18,10 +18,8 @@ import agent.Agent;
 public class CookAgent extends Agent {
 	private Map<String, Food> foodMap = new HashMap<String, Food>();
 
-	boolean sentOrder = false;
 	enum State {pending, cooking, done, sent};
 	String name;
-	boolean busy = false;
 	public CookGui cookGui = null;
 	Timer timer = new Timer();
 	private int marketNum = 0;
@@ -113,7 +111,6 @@ public class CookAgent extends Agent {
 	}
 	
 	public void msgOrderFulfilled(String type, int amount) {
-		sentOrder = false;
 		foodMap.get(type).amount += amount;
 		foodMap.get(type).orderPending = false;
 		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
@@ -123,7 +120,6 @@ public class CookAgent extends Agent {
 	}
 	
 	public void msgOrderUnfulfilled() {
-		sentOrder = false;
 		marketNum++;
 		if (marketNum == 3)
 			marketNum = 0;

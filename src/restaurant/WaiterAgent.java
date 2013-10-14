@@ -27,8 +27,6 @@ public class WaiterAgent extends Agent {
 	public Semaphore serveFood = new Semaphore(0, true);
 	public Semaphore takingBreak = new Semaphore(0,true);
 
-	Timer breakTimer = new Timer();
-
 	boolean readyCustomers = false;
 	boolean WantBreak = false;
 	public boolean onBreak = false;
@@ -473,7 +471,6 @@ public class WaiterAgent extends Agent {
 		print("Preparing bill for Customer");
 		customer.s = CustomerState.done;
 		waiterGui.DoClearTable(customer.t);
-		//Check c = new Check(customer.c, customer.t, customer.choice);
 		cashier.msgGiveOrderToCashier(customer.choice, customer.t, customer.c, this); 
 	}
 
@@ -488,7 +485,6 @@ public class WaiterAgent extends Agent {
 		}
 		c.c.msgHereIsCheck(c);
 		c.state = CheckState.delivered;
-		stateChanged();
 	}
 
 
@@ -502,6 +498,10 @@ public class WaiterAgent extends Agent {
 
 	public WaiterGui getGui() {
 		return waiterGui;
+	}
+
+	public void offBreak() {
+		host.msgImOffBreak(this);
 	}
 
 

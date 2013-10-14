@@ -192,6 +192,7 @@ public class WaiterGui implements Gui {
 			public void run() {
 				System.out.println(agent.getName() + ": break is over");
 				agent.takingBreak.release();
+				agent.offBreak();
 				restPanel.showInfo("Waiters", agent.getName());
 			}
 		},

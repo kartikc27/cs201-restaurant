@@ -83,7 +83,6 @@ public class CustomerAgent extends Agent {
 
 	public void msgFollowMe(Menu menu) {
 		myMenu = menu;
-
 		// Customer browses menu to see what he/she can afford
 		availableOptions.clear();
 		for (int i = 0; i < myMenu.menuItems.length; i++) {
@@ -229,6 +228,7 @@ public class CustomerAgent extends Agent {
 		if ((state == AgentState.DoingNothing) && (event == AgentEvent.punish)) {
 			stealMoney();
 			state = AgentState.DoingAbsolutelyNothing;
+			return true;
 		}
 
 
