@@ -4,7 +4,17 @@
 
 1. Clone repo: git clone git@github.com:usc-csci201-fall2013/restaurant_chillaka.git
 2. Open project: File > New > Other > Java Project from Existing Ant Buildfile. Select the build.xml file from the cloned repo
-3. Run the project as a Java Application '
+3. Run the project as a Java Application 
+
+
+TEST SUGGESTION:
+
+1. Run Application
+2. Drain inventory
+3. Create customer "steak" and select hungry (if customer chooses to leave, repeat until he stays)
+
+This scenario will demonstrate the customer reordering a different food each time, until he realizes all the options are gone. As a result, he leaves.
+Also, the cook will have to use each of the markets to restock on supplies. 
 
 
 NOTE: Customer always has a chance of leaving while waiting, so if it looks like an added customer does not show up, then he/she left! The console will indicate this
