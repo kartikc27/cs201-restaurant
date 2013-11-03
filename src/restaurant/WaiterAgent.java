@@ -2,6 +2,7 @@ package restaurant;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -217,75 +218,118 @@ public class WaiterAgent extends Agent implements Waiter{
 
 		if (!onBreak) {
 			if(!customers.isEmpty()){
-				
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.gone) {
-						customers.remove(mc);
-						return true;
-					}
-				}
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.asked) {
-						orderGiven.drainPermits();
-						try {
-							orderGiven.acquire();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.gone) {
+							customers.remove(mc);
+							return true;
 						}
-						return true;
 					}
 				}
-
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.ordered) {
-						mc.s = CustomerState.orderGiven;
-						GiveOrderToCook(mc);
-						return true;
-					}
+				catch (ConcurrentModificationException e) {
+					return false;
 				}
 
-
-				for (Check c : checks) {
-					if (c.state == CheckState.unpaid) {
-						DoDeliverCheck(c);
-						return true;
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.asked) {
+							orderGiven.drainPermits();
+							try {
+								orderGiven.acquire();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							return true;
+						}
 					}
 				}
-
-
-				for(MyCustomer c:customers){
-					if(c.s == CustomerState.doneEating) {
-						prepareCheck(c);
-						return true;
-					}
+				catch (ConcurrentModificationException e) {
+					return false;
 				}
 
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.waiting) {
-						seatCustomer(mc); 
-						return true;
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.ordered) {
+							mc.s = CustomerState.orderGiven;
+							GiveOrderToCook(mc);
+							return true;
+						}
 					}
 				}
-
-
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.readyToOrder) {
-						TakeOrder(mc);
-						return true;
-					}
+				catch (ConcurrentModificationException e) {
+					return false;
 				}
 
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.notAvailable) {
-						TellCustomerFoodUnavailable(mc);
-						return true;
+				try {
+					for (Check c : checks) {
+						if (c.state == CheckState.unpaid) {
+							DoDeliverCheck(c);
+							return true;
+						}
 					}
 				}
+				catch (ConcurrentModificationException e) {
+					return false;
+				}
 
-				for (MyCustomer mc : customers) {
-					if (mc.s == CustomerState.done) {
-						waiterGui.DoLeaveCustomer();
+				try {
+					for(MyCustomer c:customers){
+						if(c.s == CustomerState.doneEating) {
+							prepareCheck(c);
+							return true;
+						}
 					}
+				}
+				catch (ConcurrentModificationException e) {
+					return false;
+				}
+
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.waiting) {
+							seatCustomer(mc); 
+							return true;
+						}
+					}
+				}
+				catch (ConcurrentModificationException e) {
+					return false;
+				}
+
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.readyToOrder) {
+							TakeOrder(mc);
+							return true;
+						}
+					}
+				}
+				catch (ConcurrentModificationException e) {
+					return false;
+				}
+
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.notAvailable) {
+							TellCustomerFoodUnavailable(mc);
+							return true;
+						}
+					}
+				}
+				catch (ConcurrentModificationException e) {
+					return false;
+				}
+
+				try {
+					for (MyCustomer mc : customers) {
+						if (mc.s == CustomerState.done) {
+							waiterGui.DoLeaveCustomer();
+						}
+					}
+				}
+				catch (ConcurrentModificationException e) {
+					return false;
 				}
 
 				if (readyOrders.size() > 0) {
@@ -325,6 +369,7 @@ public class WaiterAgent extends Agent implements Waiter{
 			WantBreak = false;
 			return true;
 		}
+
 
 		return false;
 	}
@@ -509,7 +554,7 @@ public class WaiterAgent extends Agent implements Waiter{
 	@Override
 	public void msgHereIsComputedcheck(Check c) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 

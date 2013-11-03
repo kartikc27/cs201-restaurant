@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class MarketAgent extends Agent {
 			amount = a;
 		}
 	}
-	private Map<String, Integer> inventory = new HashMap<String, Integer>();
+	private Map<String, Integer> inventory = Collections.synchronizedMap (new HashMap<String, Integer>());
 	MyFood order;
 
 	private String name;
@@ -40,7 +41,7 @@ public class MarketAgent extends Agent {
 	}
 
 	public void msgHereIsMarketOrder(String type, int amt) {
-		
+
 		if(!orderPending) {   
 			print ("Received order of " + type);
 			order = new MyFood(type, amt);
@@ -49,7 +50,7 @@ public class MarketAgent extends Agent {
 		else if (orderPending) {
 			print ("Please order from another market");
 			cook.msgOrderUnfulfilled();
-			
+
 		}
 		stateChanged();
 	}
@@ -61,26 +62,31 @@ public class MarketAgent extends Agent {
 			print ("im here");
 			busy = true;
 			completeOrder();
+			print ("now im here");
 			return true;
 		}
 		return false;
 	}
 
 	private void completeOrder() {
-		if (order.amount < inventory.get(order.type)) {
-			timer.schedule(new TimerTask() {
-				public void run() {  
-					cook.msgOrderFulfilled(order.type, order.amount);
-					print("Fulfilled order of " + order.type);
-					orderPending = false;
-					busy = false;
-					
-				}},
-				10000);
-			
-		}
-		else {
-			cook.msgOrderUnfulfilled();
+		synchronized(inventory)
+		{
+			if (order.amount < inventory.get(order.type)) {
+				timer.schedule(new TimerTask() {
+					public void run() {  
+						cook.msgOrderFulfilled(order.type, order.amount);
+						print("Fulfilled order of " + order.type);
+						orderPending = false;
+						busy = false;
+
+					}},
+					10000);
+
+			}
+
+			else {
+				cook.msgOrderUnfulfilled();
+			}
 		}
 	}
 

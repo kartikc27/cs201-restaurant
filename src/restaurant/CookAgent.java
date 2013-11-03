@@ -119,8 +119,10 @@ public class CookAgent extends Agent {
 	public void msgOrderFulfilled(String type, int amount) {
 		foodMap.get(type).amount += amount;
 		foodMap.get(type).orderPending = false;
-		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-			System.out.println(entry.getKey() + " " + entry.getValue().amount);
+		synchronized(foodMap){
+			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+				System.out.println(entry.getKey() + " " + entry.getValue().amount);
+			}
 		}
 		stateChanged();
 	}
@@ -183,11 +185,15 @@ public class CookAgent extends Agent {
 	}
 
 	public void drainInventory() {
-		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-			entry.getValue().amount = 0;
+		synchronized(foodMap) {
+			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+				entry.getValue().amount = 0;
+			}
 		}
-		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-			System.out.println(entry.getKey() + " " + entry.getValue().amount);
+		synchronized(foodMap) {
+			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+				System.out.println(entry.getKey() + " " + entry.getValue().amount);
+			}
 		}
 	}
 
