@@ -14,8 +14,9 @@ import agent.Agent;
 
 public class CashierAgent extends Agent {
 
-	public List<MyCheck> computedChecks = new ArrayList<MyCheck>();
-	public List<Check> uncomputedChecks = new ArrayList<Check>();
+	public List<MyCheck> computedChecks = Collections.synchronizedList(new ArrayList<MyCheck>());
+	public List<Check> uncomputedChecks = Collections.synchronizedList(new ArrayList<Check>());
+	public List<MyMarketBill> marketbills = Collections.synchronizedList(new ArrayList<MyMarketBill>());
 
 	private String name;
 	public Double money;
@@ -33,6 +34,15 @@ public class CashierAgent extends Agent {
 		public MyCheck(Check check){
 			this.check = check;
 			this.amountPaid = (double) -1;
+		}
+	}
+	public enum mbState {unpaid, paid};
+	public class MyMarketBill {
+		public double price;
+		mbState state; 
+		public MyMarketBill(double p){
+			price = p;
+			state = mbState.unpaid;
 		}
 	}
 
@@ -53,31 +63,41 @@ public class CashierAgent extends Agent {
 
 
 	public void msgPayingCheck(Check check, Double amountPaid) {
-		
-		for(MyCheck c:computedChecks) {
-			if(c.check.equals(check)) {
-				c.amountPaid = amountPaid;
-				c.check.state = CheckState.paid;
-				break;
-			}	
+		synchronized(computedChecks) {
+			for(MyCheck c:computedChecks) {
+				if(c.check.equals(check)) {
+					c.amountPaid = amountPaid;
+					c.check.state = CheckState.paid;
+					break;
+				}	
+			}
 		}
 		stateChanged();
 	}
 
-	public boolean pickAndExecuteAnAction() {
+	public void msgHereIsMarketBill(double price) {
+		marketbills.add(new MyMarketBill(price));
+		stateChanged();
+	}
 
-		for(Check c: uncomputedChecks) {
-			if(c.state == CheckState.uncomputed) {
-				c.state = CheckState.unpaid;
-				computeCheck(c);
-				return true;
+	public boolean pickAndExecuteAnAction() {
+		synchronized(uncomputedChecks) {
+			for(Check c: uncomputedChecks) {
+				if(c.state == CheckState.uncomputed) {
+					c.state = CheckState.unpaid;
+					computeCheck(c);
+					return true;
+				}
 			}
 		}
 
-		for(MyCheck c: computedChecks) {
-			if(c.check.state == Check.CheckState.paid) {
-				processCheck(c);
-				return true;
+
+		synchronized(computedChecks) {
+			for(MyCheck c: computedChecks) {
+				if(c.check.state == Check.CheckState.paid) {
+					processCheck(c);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -90,12 +110,14 @@ public class CashierAgent extends Agent {
 		computedChecks.add(new MyCheck(c));
 		c.price = priceMap.get(c.choice);
 		if (c.c.oweMoney) {
-			for (MyCheck checks : computedChecks) {
-				if ((checks.check.state == CheckState.incomplete) && (checks.check.c.equals(c.c))) {
-					c.price = c.price + c.c.check.price;
+			synchronized(computedChecks) {
+				for (MyCheck checks : computedChecks) {
+					if ((checks.check.state == CheckState.incomplete) && (checks.check.c.equals(c.c))) {
+						c.price = c.price + c.c.check.price;
+					}
+
+
 				}
-					
-				
 			}
 		}
 		c.w.msgHereIsComputedCheck(c);

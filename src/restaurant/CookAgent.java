@@ -19,6 +19,7 @@ import agent.Agent;
 public class CookAgent extends Agent {
 
 	private Map<String, Food> foodMap = Collections.synchronizedMap(new HashMap<String, Food>());
+	private List<MarketOrder> incompleteOrders = Collections.synchronizedList(new ArrayList<MarketOrder>());
 
 	enum State {pending, cooking, done, sent};
 	String name;
@@ -38,6 +39,18 @@ public class CookAgent extends Agent {
 			choice = c;
 			table = t;
 			state = s;
+		}
+	}
+
+	class MarketOrder {
+		String type;
+		int amount;
+		boolean done = false;
+		public Object state;
+
+		public MarketOrder(String t, int a) {
+			type = t;
+			amount = a;
 		}
 	}
 
@@ -74,6 +87,16 @@ public class CookAgent extends Agent {
 
 	@Override
 	protected boolean pickAndExecuteAnAction() {
+
+		if (!incompleteOrders.isEmpty())	{
+			synchronized (incompleteOrders) {
+				for (MarketOrder o : incompleteOrders) {
+					if (!o.done)
+						markets.get(marketNum).msgHereIsMarketOrder(o.type, o.amount);	
+				}
+			}
+		}
+
 		synchronized (orders) {
 			if (!orders.isEmpty())
 			{
@@ -119,11 +142,34 @@ public class CookAgent extends Agent {
 	public void msgOrderFulfilled(String type, int amount) {
 		foodMap.get(type).amount += amount;
 		foodMap.get(type).orderPending = false;
+
+		synchronized(incompleteOrders) {
+			for (MarketOrder o : incompleteOrders) {
+				if ((o.type == type) && (o.done == false)) {
+					o.done = true;
+				}
+			}
+		}
 		synchronized(foodMap){
 			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
 				System.out.println(entry.getKey() + " " + entry.getValue().amount);
 			}
 		}
+		stateChanged();
+	}
+
+	public void msgOrderPartiallyFulfilled(String type, int amount, int amountunfulfilled) {
+		foodMap.get(type).amount += amount;
+		print ("Order of " + type + " partially fulfilled");
+		synchronized(foodMap){
+			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+				System.out.println(entry.getKey() + " " + entry.getValue().amount);
+			}
+		}
+		incompleteOrders.add(new MarketOrder(type, amountunfulfilled));
+		marketNum++;
+		if (marketNum > 2)
+			marketNum = 0;
 		stateChanged();
 	}
 

@@ -14,6 +14,7 @@ import agent.Agent;
 public class MarketAgent extends Agent {
 
 	private CookAgent cook;
+	private CashierAgent cashier;
 	Timer timer = new Timer();
 	class MyFood {
 		String type;
@@ -23,17 +24,27 @@ public class MarketAgent extends Agent {
 			amount = a;
 		}
 	}
+	
+	int amountunfulfilled = 0;
 	private Map<String, Integer> inventory = Collections.synchronizedMap (new HashMap<String, Integer>());
 	MyFood order;
 
 	private String name;
 	private boolean busy = false;
 	private boolean orderPending = false;
+	
+	public Map<String, Double> priceMap = new HashMap<String, Double>() { { 
+		put ("Steak", 10.99); 
+		put ("Chicken", 5.99);
+		put ("Salad", 3.99);
+		put ("Pizza", 5.99);
+	}};
 
-	public MarketAgent(String name, int numPizza, int numSalad, int numSteak, int numChicken, CookAgent cook) {
+	public MarketAgent(String name, int numPizza, int numSalad, int numSteak, int numChicken, CookAgent cook, CashierAgent cashier) {
 		super();
 		this.name = name;
 		this.cook = cook;
+		this.cashier = cashier;
 		inventory.put("Pizza", numPizza);
 		inventory.put("Salad", numSalad);
 		inventory.put("Steak", numSteak);
@@ -69,6 +80,7 @@ public class MarketAgent extends Agent {
 	}
 
 	private void completeOrder() {
+		
 		synchronized(inventory)
 		{
 			if (order.amount < inventory.get(order.type)) {
@@ -78,13 +90,25 @@ public class MarketAgent extends Agent {
 						print("Fulfilled order of " + order.type);
 						orderPending = false;
 						busy = false;
+						cashier.msgHereIsMarketBill(priceMap.get(order.type));
 
 					}},
 					10000);
 
 			}
 
-			else {
+			else if (inventory.get(order.type) > 0) {
+					amountunfulfilled = order.amount - inventory.get(order.type);
+					timer.schedule(new TimerTask() {
+						public void run() { 
+							cook.msgOrderPartiallyFulfilled(order.type, order.amount-amountunfulfilled, amountunfulfilled);
+							print("Partially fulfilled order of " + order.type);
+							orderPending = false;
+							busy = false;
+						}},
+						2000);
+			}
+			else  {
 				cook.msgOrderUnfulfilled();
 			}
 		}
