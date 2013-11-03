@@ -2,6 +2,7 @@ package restaurant;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -18,12 +19,12 @@ import agent.Agent;
 //is proceeded as he wishes.
 public class HostAgent extends Agent {
 	static final int NTABLES = 3;//a global for the number of tables.
-	//Notice that we implement waitingCustomers using ArrayList, but type it
-	//with List semantics.
-	public List<CustomerAgent> waitingCustomers = new ArrayList<CustomerAgent>();
+
+
+	public List<CustomerAgent> waitingCustomers = Collections.synchronizedList(new ArrayList<CustomerAgent>());
+	private List<MyWaiter> waiters = Collections.synchronizedList(new ArrayList<MyWaiter>());
 	public Collection<Table> tables;
-	//note that tables is typed with Collection semantics.
-	//Later we will see how it is implemented
+
 
 	private String name;
 	private boolean alreadySeated = false;
@@ -46,7 +47,6 @@ public class HostAgent extends Agent {
 
 	}
 
-	private List<MyWaiter> waiters = new ArrayList<MyWaiter>();
 
 	public HostAgent(String name) {
 		super();
@@ -111,7 +111,7 @@ public class HostAgent extends Agent {
 			}
 		}
 	}
-	
+
 	public void msgImOffBreak(WaiterAgent w) {
 		for (MyWaiter mw : waiters) {
 			if (mw.waiter.equals(w)){
@@ -120,7 +120,7 @@ public class HostAgent extends Agent {
 				mw.onBreak = false;
 			}
 		}
-		
+
 	}
 
 	// removes customer when customer chooses to leave early
@@ -142,53 +142,61 @@ public class HostAgent extends Agent {
 	protected boolean pickAndExecuteAnAction() {
 		alreadySeated = false;
 
-		if (!waiters.isEmpty())
-		{
-			for (MyWaiter m : waiters) {
-				if (!m.onBreak) {
-					if (m.breakApproved) {
-						m.waiter.msgBreakApproved();
-						m.onBreak = true;
-					}
-					else if (m.breakDenied) {
-						m.waiter.msgBreakDenied();
-					}
-				}
-			}
-			for (Table table : tables) {
-				if (!table.isOccupied()) {
-					if (waitingCustomers.size() > 0) {
-						int i = 0;
-						for (MyWaiter m : waiters) {
-							if (m.onBreak)
-								i++;
+		synchronized(waitingCustomers) {
+			synchronized(waiters) {
+				if (!waiters.isEmpty())
+				{
+					for (MyWaiter m : waiters) {
+						if (!m.onBreak) {
+							if (m.breakApproved) {
+								m.waiter.msgBreakApproved();
+								m.onBreak = true;
+							}
+							else if (m.breakDenied) {
+								m.waiter.msgBreakDenied();
+							}
 						}
-						int minTables = waiters.get(i).numTables;
-						int WaiterWithMinTables = i;
-						int j = 0;
-						for (MyWaiter mw : waiters) {
-							if (!mw.onBreak)
-							{
-								if (mw.numTables < minTables) {
-									minTables = mw.numTables;
-									WaiterWithMinTables = j;
+					}
+					for (Table table : tables) {
+						if (!table.isOccupied()) {
+							if (waitingCustomers.size() > 0) {
+								synchronized(waitingCustomers){
+									int i = 0;
+									for (MyWaiter m : waiters) {
+										if (m.onBreak)
+											i++;
+									}
+									int minTables = waiters.get(i).numTables;
+									int WaiterWithMinTables = i;
+									int j = 0;
+									synchronized(waiters){
+										for (MyWaiter mw : waiters) {
+											if (!mw.onBreak)
+											{
+												if (mw.numTables < minTables) {
+													minTables = mw.numTables;
+													WaiterWithMinTables = j;
+												}
+											}
+											j++;
+										}
+										waiters.get(WaiterWithMinTables).numTables++;
+									}
+									if (waitingCustomers.size() > 0) {
+										alreadySeated = true;
+										if (waitingCustomers.contains(waitingCustomers.get(0))) {
+											tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
+										}
+										try {
+											seatCustomer.acquire();
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+										return true;
+									}
 								}
 							}
-							j++;
-						}
-						waiters.get(WaiterWithMinTables).numTables++;
-						if (waitingCustomers.size() > 0) {
-							alreadySeated = true;
-							if (waitingCustomers.contains(waitingCustomers.get(0))) {
-								tellWaiterToSeatCustomer(waitingCustomers.get(0), table, waiters.get(WaiterWithMinTables).waiter);
-							}
-							try {
-								seatCustomer.acquire();
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							return true;
 						}
 					}
 				}
@@ -202,6 +210,7 @@ public class HostAgent extends Agent {
 
 	private void tellWaiterToSeatCustomer(CustomerAgent customer, Table table, WaiterAgent waiter) {
 		waiter.msgSitAtTable(customer, table.tableNumber);
+		customer.setWaiter(waiter);
 		table.setOccupant(customer);
 		waitingCustomers.remove(customer);
 	}
@@ -247,7 +256,7 @@ public class HostAgent extends Agent {
 	}
 
 
-	
+
 
 
 }

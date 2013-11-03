@@ -137,7 +137,7 @@ public class WaiterGui implements Gui {
 		tableNumber = tNum;
 		xDestination = locations.get(tableNumber-1).getX() + 20;
 		yDestination = locations.get(tableNumber-1).y - 20;
-		CustGui.setDestination(xDestination, yDestination);
+		CustGui.setSuggestedDestination(xDestination, yDestination);
 	}
 
 	public void DoGoToTable(int tNum) {

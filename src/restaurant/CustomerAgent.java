@@ -23,7 +23,7 @@ public class CustomerAgent extends Agent implements Customer {
 	private boolean reorder = false;
 	private double money;
 	public boolean oweMoney = false;
-	private double chanceOfStaying = .75;
+	private double chanceOfStaying = .90;
 
 	public List<String> availableOptions = new ArrayList<String>();
 

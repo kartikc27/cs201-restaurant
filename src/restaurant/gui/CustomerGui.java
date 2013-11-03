@@ -19,6 +19,7 @@ public class CustomerGui implements Gui{
 
 	private int xPos, yPos;
 	private int xDestination, yDestination;
+	private int tempDestinationX, tempDestinationY;
 	private enum Command {noCommand, GoToSeat, LeaveRestaurant};
 	private Command command=Command.noCommand;
 
@@ -88,6 +89,8 @@ public class CustomerGui implements Gui{
 
 	public void DoGoToSeat() {
 		command = Command.GoToSeat;
+		xDestination = tempDestinationX;
+		yDestination = tempDestinationY;
 	}
 
 	public void DoExitRestaurant() {
@@ -98,6 +101,12 @@ public class CustomerGui implements Gui{
 
 	public void setAnimationPanel(AnimationPanel ap) {
 		animationPanel = ap;
+	}
+
+	public void setSuggestedDestination(int x, int y) {
+		tempDestinationX = x;
+		tempDestinationY = y;
+		
 	}
 
 

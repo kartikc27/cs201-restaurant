@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,8 @@ import agent.Agent;
  */
 
 public class CookAgent extends Agent {
-	private Map<String, Food> foodMap = new HashMap<String, Food>();
+
+	private Map<String, Food> foodMap = Collections.synchronizedMap(new HashMap<String, Food>());
 
 	enum State {pending, cooking, done, sent};
 	String name;
@@ -49,9 +51,8 @@ public class CookAgent extends Agent {
 		}
 	}
 
-	private List<CookOrder> orders = new ArrayList<CookOrder>();
-	private List<MarketAgent> markets = new ArrayList<MarketAgent>(); 
-	Map <String , Food> foods;
+	private List<CookOrder> orders = Collections.synchronizedList(new ArrayList<CookOrder>());
+	private List<MarketAgent> markets = Collections.synchronizedList(new ArrayList<MarketAgent>()); 
 
 	public CookAgent(String name) {
 		super();
@@ -73,43 +74,48 @@ public class CookAgent extends Agent {
 
 	@Override
 	protected boolean pickAndExecuteAnAction() {
-		if (!orders.isEmpty())
-		{
-			for (CookOrder o : orders){
-				if (o.state == State.done) {
-					PlateIt(o);	
+		synchronized (orders) {
+			if (!orders.isEmpty())
+			{
+				for (CookOrder o : orders){
+					if (o.state == State.done) {
+						PlateIt(o);	
+					}
+					break;
 				}
-				break;
-			}
-			for (CookOrder o : orders){
-				if (o.state == State.pending) {
-					CookIt(o);
-					o.state = State.cooking;
+				for (CookOrder o : orders){
+					if (o.state == State.pending) {
+						CookIt(o);
+						o.state = State.cooking;
+					}
+					break;
 				}
-				break;
-			}
-			return true;
-		}
-		
-		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-			if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
-				orderFromMarket(entry.getKey());
-				entry.getValue().orderPending = true;
 				return true;
 			}
+
+			synchronized(foodMap) {
+				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+					if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
+						orderFromMarket(entry.getKey());
+						entry.getValue().orderPending = true;
+						return true;
+
+					}
+				}
+			}
+
 		}
-		
-		
+
 		return false;
 	}
 
-	
+
 	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
 		orders.add(new CookOrder(w, choice, table, State.pending));
 		System.out.println ("Cook: received order of " + choice);
 		stateChanged();
 	}
-	
+
 	public void msgOrderFulfilled(String type, int amount) {
 		foodMap.get(type).amount += amount;
 		foodMap.get(type).orderPending = false;
@@ -118,7 +124,7 @@ public class CookAgent extends Agent {
 		}
 		stateChanged();
 	}
-	
+
 	public void msgOrderUnfulfilled() {
 		marketNum++;
 		if (marketNum > 2)
@@ -155,8 +161,9 @@ public class CookAgent extends Agent {
 		},
 		foodMap.get(choice).cookingTime*1000);
 	}
-	
+
 	private void orderFromMarket(String type) {
+		print ("Attempting to order " + type);
 		markets.get(marketNum).msgHereIsMarketOrder(type, 5);
 	}
 
@@ -170,11 +177,11 @@ public class CookAgent extends Agent {
 		}
 		stateChanged();
 	}
-	
+
 	public void addMarkets(List<MarketAgent> markets) {
 		this.markets = markets;
 	}
-	
+
 	public void drainInventory() {
 		for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
 			entry.getValue().amount = 0;

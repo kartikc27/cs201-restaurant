@@ -53,13 +53,16 @@ public class RestaurantGui extends JFrame implements ActionListener {
      * Sets up all the gui components.
      */
     public RestaurantGui() {
+    	    	
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         animationPanel = new AnimationPanel();
         animationPanel.setVisible(true);
     	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	setBounds(0,0,screenSize.width, screenSize.height);
+    	setBounds(0,0,screenSize.width-200, screenSize.height-100);
+    	setLocation(screenSize.width/2-this.getSize().width/2, screenSize.height/2-this.getSize().height/2);
+
        
 
         Dimension restDim = new Dimension(screenSize.width/2, (int) (screenSize.height * .75));
@@ -194,7 +197,8 @@ public class RestaurantGui extends JFrame implements ActionListener {
         RestaurantGui gui = new RestaurantGui();
         gui.setTitle("Rami's Restaurant - Kartik");
         gui.setVisible(true);
-        gui.setResizable(false);
+        gui.setResizable(true);        
+
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

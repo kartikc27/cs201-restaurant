@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,9 +62,9 @@ public class WaiterAgent extends Agent implements Waiter{
 		}
 	}
 
-	private List<MyCustomer> customers = new ArrayList<MyCustomer>();
-	private List<WaiterOrder> readyOrders = new ArrayList<WaiterOrder>();
-	private List<Check> checks = new ArrayList<Check>();
+	private List<MyCustomer> customers = Collections.synchronizedList(new ArrayList<MyCustomer>());
+	private List<WaiterOrder> readyOrders = Collections.synchronizedList(new ArrayList<WaiterOrder>());
+	private List<Check> checks = Collections.synchronizedList(new ArrayList<Check>());
 
 	public WaiterGui waiterGui = null;
 	private CookAgent cook;
@@ -357,7 +358,6 @@ public class WaiterAgent extends Agent implements Waiter{
 		}
 		DoSeatCustomer(c.c, c.t);
 		c.c.msgFollowMe(new Menu());
-		c.c.setWaiter(this);
 		atTable.drainPermits();
 		try {
 			atTable.acquire(); 
