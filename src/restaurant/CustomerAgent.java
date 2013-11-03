@@ -7,12 +7,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import restaurant.gui.CustomerGui;
+import restaurant.interfaces.Customer;
+import restaurant.interfaces.Waiter;
 import agent.Agent;
 
 /**
  * Restaurant customer agent.
  */
-public class CustomerAgent extends Agent {
+public class CustomerAgent extends Agent implements Customer {
 	private String name;
 	private int hungerLevel = 4; // determines length of meal
 	private String choice;
@@ -122,6 +124,11 @@ public class CustomerAgent extends Agent {
 		check = c;
 		event = AgentEvent.checkArrived; 
 		stateChanged();
+	}
+	
+	public void msgHereIsYourChange(double change) {
+		print("Received change from Cashier");
+		money += change;
 	}
 
 	public void msgAnimationFinishedGoToSeat() {
@@ -397,6 +404,8 @@ public class CustomerAgent extends Agent {
 		print ("Stole 100 dollars");
 		money += 100;
 	}
+
+	
 
 
 }

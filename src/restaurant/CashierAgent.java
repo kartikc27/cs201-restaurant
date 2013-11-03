@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import restaurant.Check.CheckState;
+import restaurant.interfaces.Customer;
+import restaurant.interfaces.Waiter;
+import restaurant.test.mock.EventLog;
+import restaurant.test.mock.MockWaiter;
 import agent.Agent;
 
 public class CashierAgent extends Agent {
@@ -38,10 +42,11 @@ public class CashierAgent extends Agent {
 		put ("Salad", 5.99);
 		put ("Pizza", 8.99);
 	}};
+	public EventLog log = new EventLog();
 
 
-	public void msgGiveOrderToCashier(String c, int tNum, CustomerAgent cust, WaiterAgent waiter) {
-		uncomputedChecks.add(new Check(c, tNum, cust, waiter));
+	public void msgGiveOrderToCashier(String c, int tNum, Customer c2, Waiter waiterAgent) {
+		uncomputedChecks.add(new Check(c, tNum, c2, waiterAgent));
 		print ("Received msgGiveOrderToCashier");
 		stateChanged();
 	}
@@ -104,6 +109,10 @@ public class CashierAgent extends Agent {
 			c.check.state = Check.CheckState.done;
 			print("Money is now " + money + " with purchase of " + c.amountPaid);
 			print("Processing check for Customer");
+			if (c.check.price < c.amountPaid) {
+				double change = c.amountPaid - c.check.price;
+				c.check.c.msgHereIsYourChange(change);
+			}
 		}
 		else {
 			c.check.state = CheckState.incomplete;

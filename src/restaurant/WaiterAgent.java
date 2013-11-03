@@ -9,6 +9,8 @@ import java.util.concurrent.Semaphore;
 import restaurant.Check.CheckState;
 import restaurant.CustomerAgent.AgentEvent;
 import restaurant.gui.WaiterGui;
+import restaurant.interfaces.Customer;
+import restaurant.interfaces.Waiter;
 import agent.Agent;
 
 /**
@@ -16,7 +18,7 @@ import agent.Agent;
  */
 
 
-public class WaiterAgent extends Agent {
+public class WaiterAgent extends Agent implements Waiter{
 
 	private String name;
 	public Semaphore atTable = new Semaphore(0, true);
@@ -42,7 +44,7 @@ public class WaiterAgent extends Agent {
 			s = state;
 
 		}
-		CustomerAgent c;
+		Customer c;
 		int t;
 		String choice;
 		CustomerState s;
@@ -460,11 +462,11 @@ public class WaiterAgent extends Agent {
 		}
 	}
 
-	private void DoSeatCustomer(CustomerAgent customer, int tableNumber) {
+	private void DoSeatCustomer(Customer c, int tableNumber) {
 		//Notice how we print "customer" directly. It's toString method will do it.
 		//Same with "table"
-		print("Seating " + customer + " at " + tableNumber);
-		waiterGui.DoBringToTable(customer.getGui(), tableNumber); 
+		print("Seating " + c + " at " + tableNumber);
+		waiterGui.DoBringToTable(c.getGui(), tableNumber); 
 	}
 
 	private void prepareCheck(MyCustomer customer) {
@@ -502,6 +504,12 @@ public class WaiterAgent extends Agent {
 
 	public void offBreak() {
 		host.msgImOffBreak(this);
+	}
+
+	@Override
+	public void msgHereIsComputedcheck(Check c) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

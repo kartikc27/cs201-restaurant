@@ -3,10 +3,13 @@ package restaurant;
 import java.util.HashMap;
 import java.util.Map;
 
+import restaurant.interfaces.Customer;
+import restaurant.interfaces.Waiter;
+
 
 public class Check {
-	public CustomerAgent c;
-	public WaiterAgent w;
+	public Customer c;
+	public Waiter w;
 	public int tableNum;
 	public String choice;
 	public Double price;
@@ -15,7 +18,7 @@ public class Check {
 	
 	
 
-	public Check(String choice, int tableNum, CustomerAgent c, WaiterAgent w)
+	public Check(String choice, int tableNum, Customer c, Waiter w)
 	{	
 		this.w = w;
 		this.c = c;

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import restaurant.gui.HostGui;
+import restaurant.interfaces.Customer;
 import agent.Agent;
 
 /**
@@ -123,7 +124,7 @@ public class HostAgent extends Agent {
 	}
 
 	// removes customer when customer chooses to leave early
-	public void msgLeaving(CustomerAgent c) {
+	public void msgLeaving(Customer c) {
 		if (!alreadySeated) {
 			waitingCustomers.remove(c);
 			stateChanged();
