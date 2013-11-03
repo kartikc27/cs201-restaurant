@@ -28,7 +28,7 @@ public class HostAgent extends Agent {
 
 	private String name;
 	private boolean alreadySeated = false;
-
+ 
 	public HostGui hostGui = null;
 
 	private Semaphore seatCustomer = new Semaphore(0, true);
