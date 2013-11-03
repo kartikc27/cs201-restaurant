@@ -38,10 +38,12 @@ public class CashierAgent extends Agent {
 	}
 	public enum mbState {unpaid, paid};
 	public class MyMarketBill {
-		public double price;
+		public Double price;
 		mbState state; 
-		public MyMarketBill(double p){
+		MarketAgent market;
+		public MyMarketBill(Double p, MarketAgent m){
 			price = p;
+			market = m;
 			state = mbState.unpaid;
 		}
 	}
@@ -75,12 +77,22 @@ public class CashierAgent extends Agent {
 		stateChanged();
 	}
 
-	public void msgHereIsMarketBill(double price) {
-		marketbills.add(new MyMarketBill(price));
+	public void msgHereIsMarketBill(double price, MarketAgent m) {
+		marketbills.add(new MyMarketBill(price, m));
 		stateChanged();
 	}
 
 	public boolean pickAndExecuteAnAction() {
+		
+		synchronized(marketbills) {
+			for (MyMarketBill mb : marketbills) {
+				if (mb.state == mbState.unpaid) {
+					payMarketBill(mb);
+					//mb.state = mbState.paid;
+				}
+			}
+		}
+		
 		synchronized(uncomputedChecks) {
 			for(Check c: uncomputedChecks) {
 				if(c.state == CheckState.uncomputed) {
@@ -127,20 +139,40 @@ public class CashierAgent extends Agent {
 	private void processCheck(MyCheck c)
 	{
 		if (c.check.price <= c.amountPaid) {
-			money += c.amountPaid;
+			money += c.amountPaid.doubleValue();
 			c.check.state = Check.CheckState.done;
-			print("Money is now " + money + " with purchase of " + c.amountPaid);
-			print("Processing check for Customer");
+			print("Money is now " + money + " with Customer purchase of " + c.amountPaid);
 			if (c.check.price < c.amountPaid) {
 				double change = c.amountPaid - c.check.price;
 				c.check.c.msgHereIsYourChange(change);
 			}
+			
 		}
 		else {
 			c.check.state = CheckState.incomplete;
 			print ("Pay up next time or you will face Rami's Wrath");
 			c.check.c.msgPunish();
 		}
+	}
+	
+	private void payMarketBill(MyMarketBill bill) {
+		
+		if (money.compareTo(bill.price) > 0) {
+			bill.market.msgHereIsBill(bill.price);
+			money -= bill.price;
+			print ("Paid market. I now have " + money);
+			bill.state = mbState.paid;
+
+		}
+		else {
+			print ("Could not pay with " + money + ". Will fulfill when I have the money");
+			for (MyMarketBill mb : marketbills) {
+				if (mb.equals(bill)){
+					mb.state = mbState.unpaid;
+				}
+			}
+		}
+			
 	}
 
 

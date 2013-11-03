@@ -15,6 +15,7 @@ public class MarketAgent extends Agent {
 
 	private CookAgent cook;
 	private CashierAgent cashier;
+	double money = 0;
 	Timer timer = new Timer();
 	class MyFood {
 		String type;
@@ -26,54 +27,66 @@ public class MarketAgent extends Agent {
 	}
 	
 	int amountunfulfilled = 0;
-	private Map<String, Integer> inventory = Collections.synchronizedMap (new HashMap<String, Integer>());
+	private Map<String, foodData> inventory = Collections.synchronizedMap (new HashMap<String, foodData>());
 	MyFood order;
 
 	private String name;
 	private boolean busy = false;
 	private boolean orderPending = false;
 	
-	public Map<String, Double> priceMap = new HashMap<String, Double>() { { 
-		put ("Steak", 10.99); 
-		put ("Chicken", 5.99);
-		put ("Salad", 3.99);
-		put ("Pizza", 5.99);
-	}};
+	public class foodData {
+		int amount;
+		double price;
+		public foodData(int a, double p) {
+			amount = a;
+			price = p;
+		}
+	}
+	
+	
 
 	public MarketAgent(String name, int numPizza, int numSalad, int numSteak, int numChicken, CookAgent cook, CashierAgent cashier) {
 		super();
 		this.name = name;
 		this.cook = cook;
 		this.cashier = cashier;
-		inventory.put("Pizza", numPizza);
-		inventory.put("Salad", numSalad);
-		inventory.put("Steak", numSteak);
-		inventory.put("Chicken", numChicken);
+		foodData chickenData = new foodData(numChicken, 5.99);
+		foodData saladData = new foodData(numSalad, 3.99);
+		foodData steakData = new foodData(numSteak, 10.99);
+		foodData pizzaData = new foodData(numPizza, 5.99);
+		inventory.put("Chicken", chickenData);
+		inventory.put("Salad", saladData);
+		inventory.put("Steak", steakData);
+		inventory.put("Pizza", pizzaData);
 	}
 
 	public void msgHereIsMarketOrder(String type, int amt) {
 
-		if(!orderPending) {   
+		
+		if (orderPending) {
+			print ("Please order from another market");
+			cook.msgOrderUnfulfilled(order.type);
+
+		}
+		else if(!orderPending) {   
 			print ("Received order of " + type);
 			order = new MyFood(type, amt);
 			orderPending = true;
 		}
-		else if (orderPending) {
-			print ("Please order from another market");
-			cook.msgOrderUnfulfilled();
-
-		}
 		stateChanged();
+	}
+	
+	public void msgHereIsBill(double amountPaid) {
+		money += amountPaid;
+		print ("Received bill from Cashier. I now have " + money);
 	}
 
 	@Override
 	protected boolean pickAndExecuteAnAction() {
 
 		if ((orderPending) && (!busy)) {
-			print ("im here");
 			busy = true;
 			completeOrder();
-			print ("now im here");
 			return true;
 		}
 		return false;
@@ -83,33 +96,38 @@ public class MarketAgent extends Agent {
 		
 		synchronized(inventory)
 		{
-			if (order.amount < inventory.get(order.type)) {
+			if (order.amount < inventory.get(order.type).price) {
 				timer.schedule(new TimerTask() {
 					public void run() {  
 						cook.msgOrderFulfilled(order.type, order.amount);
+						inventory.get(order.type).amount -= order.amount;
 						print("Fulfilled order of " + order.type);
 						orderPending = false;
 						busy = false;
-						cashier.msgHereIsMarketBill(priceMap.get(order.type));
-
 					}},
-					10000);
-
+					100);
+				print ("Sending bill to Cashier");
+				cashier.msgHereIsMarketBill(inventory.get(order.type).price, this);
 			}
-
-			else if (inventory.get(order.type) > 0) {
-					amountunfulfilled = order.amount - inventory.get(order.type);
+			
+			else if ((inventory.get(order.type).amount > 0) && (order.amount > inventory.get(order.type).amount)) {
+					amountunfulfilled = order.amount - inventory.get(order.type).amount;
+					inventory.get(order.type).amount = 0;
 					timer.schedule(new TimerTask() {
 						public void run() { 
-							cook.msgOrderPartiallyFulfilled(order.type, order.amount-amountunfulfilled, amountunfulfilled);
 							print("Partially fulfilled order of " + order.type);
+							cook.msgOrderPartiallyFulfilled(order.type, order.amount-amountunfulfilled, amountunfulfilled);
 							orderPending = false;
 							busy = false;
+							
+							
 						}},
 						2000);
 			}
 			else  {
-				cook.msgOrderUnfulfilled();
+				cook.msgOrderUnfulfilled(order.type);
+				busy = false;
+				orderPending = false;
 			}
 		}
 	}

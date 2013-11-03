@@ -42,15 +42,17 @@ public class CookAgent extends Agent {
 		}
 	}
 
+	enum MarketOrderState {pending, ordering, done};
+
 	class MarketOrder {
 		String type;
 		int amount;
-		boolean done = false;
-		public Object state;
+		public MarketOrderState state;
 
 		public MarketOrder(String t, int a) {
 			type = t;
 			amount = a;
+			state = MarketOrderState.pending;
 		}
 	}
 
@@ -88,160 +90,169 @@ public class CookAgent extends Agent {
 	@Override
 	protected boolean pickAndExecuteAnAction() {
 
-		if (!incompleteOrders.isEmpty())	{
-			synchronized (incompleteOrders) {
-				for (MarketOrder o : incompleteOrders) {
-					if (!o.done)
-						markets.get(marketNum).msgHereIsMarketOrder(o.type, o.amount);	
+
+		synchronized (incompleteOrders) {
+			for (MarketOrder o : incompleteOrders) {
+				if (o.state == MarketOrderState.pending) {
+					print ("ORDERING MORE OF PARTIAL ORDER");
+					o.state = MarketOrderState.ordering;
+					markets.get(marketNum).msgHereIsMarketOrder(o.type, o.amount);	
 				}
 			}
 		}
 
-		synchronized (orders) {
-			if (!orders.isEmpty())
-			{
-				for (CookOrder o : orders){
-					if (o.state == State.done) {
-						PlateIt(o);	
+
+			synchronized (orders) {
+				if (!orders.isEmpty())
+				{
+					for (CookOrder o : orders){
+						if (o.state == State.done) {
+							PlateIt(o);	
+						}
+						break;
 					}
-					break;
-				}
-				for (CookOrder o : orders){
-					if (o.state == State.pending) {
-						CookIt(o);
-						o.state = State.cooking;
+					for (CookOrder o : orders){
+						if (o.state == State.pending) {
+							CookIt(o);
+							o.state = State.cooking;
+						}
+						break;
 					}
-					break;
+					return true;
 				}
-				return true;
+
+				synchronized(foodMap) {
+					for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+						if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
+							orderFromMarket(entry.getKey());
+							entry.getValue().orderPending = true;
+							return true;
+
+						}
+					}
+				}
+
 			}
 
+			return false;
+		}
+
+
+		public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
+			orders.add(new CookOrder(w, choice, table, State.pending));
+			System.out.println ("Cook: received order of " + choice);
+			stateChanged();
+		}
+
+		public void msgOrderFulfilled(String type, int amount) {
+			foodMap.get(type).amount += amount;
+			foodMap.get(type).orderPending = false;
+
+			synchronized(incompleteOrders) {
+				for (MarketOrder o : incompleteOrders) {
+					if ((o.type == type) && (o.state == MarketOrderState.ordering)) {
+						o.state = MarketOrderState.done;
+						foodMap.get(o.type).orderPending = true;
+					}
+				}
+			}
+			synchronized(foodMap){
+				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+					System.out.println(entry.getKey() + " " + entry.getValue().amount);
+				}
+			}
+			stateChanged();
+		}
+
+		public void msgOrderPartiallyFulfilled(String type, int amount, int amountunfulfilled) {
+			foodMap.get(type).amount += amount;
+			print ("Order of " + type + " partially fulfilled");
+			synchronized(foodMap){
+				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+					System.out.println(entry.getKey() + " " + entry.getValue().amount);
+				}
+			}
+			incompleteOrders.add(new MarketOrder(type, amountunfulfilled));
+			marketNum++;
+			if (marketNum > 2)
+				marketNum = 0;
+			stateChanged();
+		}
+
+		public void msgOrderUnfulfilled(String type) {
+			for (MarketOrder m : incompleteOrders) {
+				if ((m.type.equals(type)) && (m.state == MarketOrderState.ordering)) {
+					m.state = MarketOrderState.pending;
+				}
+			}
+			marketNum++;
+			if (marketNum > 2)
+				marketNum = 0;
+			stateChanged();
+		}
+
+
+		private void CookIt(CookOrder o){
+			if (foodMap.get(o.choice).amount > 0) {
+				foodMap.get(o.choice).amount--; 
+				CookFood(o.choice);
+			}
+			else {
+				System.out.println("I'm out of food!");
+				o.waiter.msgImOutOfFood(o.table);
+				orders.remove(o);
+				orderFromMarket(o.choice);
+				foodMap.get(o.choice).orderPending = true;
+			}
+		}
+
+		private void PlateIt(CookOrder o) {
+			o.waiter.msgOrderIsReady(o.choice, o.table); 
+			orders.remove(o);
+		}
+
+		private void CookFood(final String choice) {
+			timer.schedule(new TimerTask() {
+				public void run() {
+					print("Done cooking " + choice );
+					markFoodDone(choice);
+				}
+			},
+			foodMap.get(choice).cookingTime*1000);
+		}
+
+		private void orderFromMarket(String type) {
+			print ("Attempting to order " + type);
+			markets.get(marketNum).msgHereIsMarketOrder(type, 5);
+		}
+
+
+		public void markFoodDone(String choice) {
+			for (CookOrder o : orders){
+				if (o.choice == choice) {
+					o.state = State.done;
+				}
+				break;
+			}
+			stateChanged();
+		}
+
+		public void addMarkets(List<MarketAgent> markets) {
+			this.markets = markets;
+		}
+
+		public void drainInventory() {
 			synchronized(foodMap) {
 				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-					if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
-						orderFromMarket(entry.getKey());
-						entry.getValue().orderPending = true;
-						return true;
-
-					}
+					entry.getValue().amount = 0;
 				}
 			}
-
-		}
-
-		return false;
-	}
-
-
-	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
-		orders.add(new CookOrder(w, choice, table, State.pending));
-		System.out.println ("Cook: received order of " + choice);
-		stateChanged();
-	}
-
-	public void msgOrderFulfilled(String type, int amount) {
-		foodMap.get(type).amount += amount;
-		foodMap.get(type).orderPending = false;
-
-		synchronized(incompleteOrders) {
-			for (MarketOrder o : incompleteOrders) {
-				if ((o.type == type) && (o.done == false)) {
-					o.done = true;
+			synchronized(foodMap) {
+				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+					System.out.println(entry.getKey() + " " + entry.getValue().amount);
 				}
 			}
 		}
-		synchronized(foodMap){
-			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-				System.out.println(entry.getKey() + " " + entry.getValue().amount);
-			}
-		}
-		stateChanged();
+
 	}
-
-	public void msgOrderPartiallyFulfilled(String type, int amount, int amountunfulfilled) {
-		foodMap.get(type).amount += amount;
-		print ("Order of " + type + " partially fulfilled");
-		synchronized(foodMap){
-			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-				System.out.println(entry.getKey() + " " + entry.getValue().amount);
-			}
-		}
-		incompleteOrders.add(new MarketOrder(type, amountunfulfilled));
-		marketNum++;
-		if (marketNum > 2)
-			marketNum = 0;
-		stateChanged();
-	}
-
-	public void msgOrderUnfulfilled() {
-		marketNum++;
-		if (marketNum > 2)
-			marketNum = 0;
-		stateChanged();
-	}
-
-
-	private void CookIt(CookOrder o){
-		if (foodMap.get(o.choice).amount > 0) {
-			foodMap.get(o.choice).amount--; 
-			CookFood(o.choice);
-		}
-		else {
-			System.out.println("I'm out of food!");
-			o.waiter.msgImOutOfFood(o.table);
-			orders.remove(o);
-			orderFromMarket(o.choice);
-			foodMap.get(o.choice).orderPending = true;
-		}
-	}
-
-	private void PlateIt(CookOrder o) {
-		o.waiter.msgOrderIsReady(o.choice, o.table); 
-		orders.remove(o);
-	}
-
-	private void CookFood(final String choice) {
-		timer.schedule(new TimerTask() {
-			public void run() {
-				print("Done cooking " + choice );
-				markFoodDone(choice);
-			}
-		},
-		foodMap.get(choice).cookingTime*1000);
-	}
-
-	private void orderFromMarket(String type) {
-		print ("Attempting to order " + type);
-		markets.get(marketNum).msgHereIsMarketOrder(type, 5);
-	}
-
-
-	public void markFoodDone(String choice) {
-		for (CookOrder o : orders){
-			if (o.choice == choice) {
-				o.state = State.done;
-			}
-			break;
-		}
-		stateChanged();
-	}
-
-	public void addMarkets(List<MarketAgent> markets) {
-		this.markets = markets;
-	}
-
-	public void drainInventory() {
-		synchronized(foodMap) {
-			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-				entry.getValue().amount = 0;
-			}
-		}
-		synchronized(foodMap) {
-			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-				System.out.println(entry.getKey() + " " + entry.getValue().amount);
-			}
-		}
-	}
-
-}
 
