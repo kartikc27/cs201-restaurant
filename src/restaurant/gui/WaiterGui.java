@@ -115,8 +115,10 @@ public class WaiterGui implements Gui {
 			}
 		}    
 
-		if ((xPos == CookX) && (yPos == CookY) && (xDestination == CookX) && (yDestination == CookY)){ //hack
-			agent.msgAtCook();
+		if (plateNum == -1) {
+			if ((xPos == CookX) && (yPos == CookY) && (xDestination == CookX) && (yDestination == CookY)){ //hack
+				agent.msgAtCook();
+			}
 		}
 
 		if ((plateNum >= 0) && (plateNum < 3)){

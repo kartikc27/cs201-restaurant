@@ -464,7 +464,6 @@ public class WaiterAgent extends Agent implements Waiter{
 		try {
 			atCook.acquire();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		cook.msgHereIsAnOrder(this, c.choice, c.t);
@@ -488,7 +487,7 @@ public class WaiterAgent extends Agent implements Waiter{
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						cook.msgImTakingTheFood();
+						cook.msgImTakingTheFood(mc.choice, mc.t);
 						waiterGui.procureFood(mc.choice, mc.t);
 						waiterGui.DoGoToTable(mc.t); 
 						atTable.drainPermits();

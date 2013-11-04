@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -16,22 +17,23 @@ import restaurant.gui.WaiterGui.Location;
 
 public class CookGui implements Gui {
 
-    private CookAgent agent = null;
-    public CookFoodGui food = null;
-    
-	public static List<CookFoodGui> foods = new ArrayList<CookFoodGui>();
+	private CookAgent agent = null;
+	//public CookFoodGui food = null;
 
-    
-    private Graphics2D g = null;
 
-    private int xPos = 575, yPos = 135; // cook position
-    int xDestination = 575;//default start position
+	public static List<CookFoodGui> foods = Collections.synchronizedList(new ArrayList<CookFoodGui>());
+
+
+	private Graphics2D g = null;
+
+	private int xPos = 575, yPos = 135; // cook position
+	int xDestination = 575;//default start position
 	int yDestination = 135;
-            
+
 	private AnimationPanel animationPanel = null;
-	
-	
-	
+
+
+
 	public static class Location {
 		public Location (int x, int y) {
 			this.setX(x);
@@ -56,7 +58,7 @@ public class CookGui implements Gui {
 	public static List<Location> grills = new ArrayList<Location>();
 	public static List<Location> plates = new ArrayList<Location>();
 
-    public CookGui(CookAgent agent) {
+	public CookGui(CookAgent agent) {
 		this.agent = agent;
 		int n = 510;
 		for (int i = 0; i < 3; i++) {
@@ -70,66 +72,84 @@ public class CookGui implements Gui {
 		}
 	}
 
-    
 
 
-    public void draw(Graphics2D g) {
-    	this.g = g;
-    	Color customerColor = new Color (52, 73, 94);
+
+	public void draw(Graphics2D g) {
+		this.g = g;
+		Color customerColor = new Color (52, 73, 94);
 		g.setColor(customerColor);
 		g.fillRect(xPos, yPos, 30, 30);
-    }
+	}
 
-    public boolean isPresent() {
-        return true;
-    }
+	public boolean isPresent() {
+		return true;
+	}
 
-    public int getXPos() {
-        return xPos;
-    }
+	public int getXPos() {
+		return xPos;
+	}
 
-    public int getYPos() {
-        return yPos;
-    }
-    
-    public void DoGoToFridge() {
-    	xDestination = 460;
-    	yDestination = 135;
-    }
-    
-    public void procureFood(String choice) {
-    	food = new CookFoodGui(this, choice, xPos, yPos);
-    	foods.add(food);
+	public int getYPos() {
+		return yPos;
+	}
+
+	public void DoGoToFridge() {
+		xDestination = 460;
+		yDestination = 135;
+	}
+
+	public void procureFood(String choice, int orderNumber) {
+		CookFoodGui food = new CookFoodGui(this, choice, xPos, yPos, orderNumber);
+		foods.add(food);
 		animationPanel.addGui(food);
-    }
-    
-    public void DoGoToGrill(int grillNum) {
-    	xDestination = grills.get(0).x + 9;
-    	yDestination = 100;
-    	food.moveWithCookToGrill(grillNum);
-    }
-    
-    public void DoGoToGrill2(int grillNum) {
-    	xDestination = grills.get(0).x + 9;
-    	yDestination = 100;
-    }
-    
-    public void DoGoToPlate(int plateNum) {
-    	xDestination = grills.get(plateNum).x + 9;
-    	yDestination = 170;
-    	food.moveWithCookToPlate(plateNum);
-    }
-    
-    public void DoGoHome() {
-    	xDestination = 575;
-    	yDestination = 135;
-    }
-    
-    public void removeFood() {
-    	food.visible = false;
-    }
-    
-    
+	}
+
+	public void DoGoToGrill(int grillNum, int orderNum) {
+		xDestination = grills.get(0).x + 9;
+		yDestination = 100;
+		synchronized(foods) {
+			for (CookFoodGui f : foods) {
+				if (f.orderNumber == orderNum) {
+					f.moveWithCookToGrill(grillNum);
+				}
+			}
+		}
+	}
+
+	public void DoGoToGrill2(int grillNum) {
+		xDestination = grills.get(grillNum).x + 9;
+		yDestination = 100;
+	}
+
+	public void DoGoToPlate(int plateNum, int orderNum) {
+		xDestination = plates.get(plateNum).x + 9;
+		yDestination = 170;
+		synchronized (foods){
+			for (CookFoodGui f : foods) {
+				if (f.orderNumber == orderNum) {
+					f.moveWithCookToPlate(plateNum);
+				}
+			}
+		}
+	}
+
+	public void DoGoHome() {
+		xDestination = 575;
+		yDestination = 135;
+	}
+
+	public void removeFood(int orderNum) {
+		synchronized(foods){
+			for (CookFoodGui f : foods) {
+				if (f.orderNumber == orderNum) {
+					f.visible = false;
+				}
+			}
+		}
+	}
+
+
 
 
 	@Override
@@ -143,24 +163,38 @@ public class CookGui implements Gui {
 			yPos++;
 		else if (yPos > yDestination)
 			yPos--;
-		
+
 		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == 460) && (yDestination == 135)) {
 			agent.msgAtFridge();
 		}
-		
+
 		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == grills.get(0).getX() + 9) && (yDestination == 100)) {
 			agent.msgAtGrill();
 		}
-		
+
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == grills.get(1).getX() + 9) && (yDestination == 100)) {
+			agent.msgAtGrill();
+		}
+
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == grills.get(2).getX() + 9) && (yDestination == 100)) {
+			agent.msgAtGrill();
+		}
+
 		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == plates.get(0).getX() + 9) && (yDestination == 170)) {
 			agent.msgAtPlate();
 		}
-		
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == plates.get(1).getX() + 9) && (yDestination == 170)) {
+			agent.msgAtPlate();
+		}
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == plates.get(2).getX() + 9) && (yDestination == 170)) {
+			agent.msgAtPlate();
+		}
+
 		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == 575) && (yDestination == 135)) {
 			agent.msgAtHome();
 		}
 	}
-	
+
 	public void setAnimationPanel(AnimationPanel ap) {
 		animationPanel = ap;
 	}

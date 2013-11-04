@@ -18,24 +18,24 @@ import agent.Agent;
  */
 
 public class CookAgent extends Agent {
-	
+
 	private Map<String, Food> foodMap = Collections.synchronizedMap(new HashMap<String, Food>());
 	private List<MarketOrder> incompleteOrders = Collections.synchronizedList(new ArrayList<MarketOrder>());
-	enum CookGuiState {waiting, gettingStuff, placingStuff, platingStuff}
-	CookGuiState actionState;
-	enum State {pending, cooking, done, sent};
+	enum State {pending, cooking, done, plated, sent};
 	String name;
 	public CookGui cookGui = null;
 	Timer timer = new Timer();
 	private int marketNum = 0;
-	int grillNum = 0;
+
 	int plateNum = 0;
+	int orderNumber = 0;
 	private Semaphore atFridge = new Semaphore(0, true);
 	private Semaphore atGrill = new Semaphore(0, true);
 	private Semaphore atPlate = new Semaphore(0, true);
+	private Semaphore platingFood = new Semaphore(0, true);
 	private Semaphore atHome = new Semaphore(0,true);
 	private Semaphore askWaiter = new Semaphore(0,true);
-	
+
 
 
 
@@ -46,6 +46,9 @@ public class CookAgent extends Agent {
 		int table;
 		State state;
 		int grill;
+		int plate;
+		int orderNum;
+
 
 
 		public CookOrder(WaiterAgent w, String c, int t, State s) {
@@ -53,6 +56,9 @@ public class CookAgent extends Agent {
 			choice = c;
 			table = t;
 			state = s;
+			orderNum = orderNumber;
+			grill = orderNumber%3;
+			plate = grill;
 		}
 	}
 
@@ -61,6 +67,7 @@ public class CookAgent extends Agent {
 	class MarketOrder {
 		String type;
 		int amount;
+
 		public MarketOrderState state;
 
 		public MarketOrder(String t, int a) {
@@ -94,7 +101,6 @@ public class CookAgent extends Agent {
 		foodMap.put("Salad", salad);  
 		foodMap.put("Pizza", pizza);  
 		foodMap.put("Chicken", chicken);
-		actionState = CookGuiState.waiting;
 	}
 
 	public void setGui(CookGui gui) {
@@ -122,31 +128,40 @@ public class CookAgent extends Agent {
 			{
 				for (CookOrder o : orders){
 					if (o.state == State.done) {
+						o.state = State.plated;
+						print ("Plating " + o.choice + " from " + o.grill + " to " + o.plate);
 						PlateIt(o);	
-					}
-					break;
-				}
-				for (CookOrder o : orders){
-					if (o.state == State.pending) {
-						CookIt(o);
-						o.state = State.cooking;
-					}
-					break;
-				}
-				return true;
-			}
-
-			synchronized(foodMap) {
-				for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
-					if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
-						orderFromMarket(entry.getKey());
-						entry.getValue().orderPending = true;
 						return true;
 
 					}
 				}
 			}
+		}
 
+		synchronized (orders) {
+			if (!orders.isEmpty()) {
+				for (CookOrder o : orders){
+					if (o.state == State.pending) {
+						print ("Cooking " + o.choice + " on " + o.grill);
+						CookIt(o);
+
+						o.state = State.cooking;
+						return true;
+					}
+				}
+			}
+		}
+
+		synchronized(foodMap) {
+
+			for (Map.Entry<String, Food> entry : foodMap.entrySet()) {
+				if ((entry.getValue().amount <= 0) && (!entry.getValue().orderPending)){
+					orderFromMarket(entry.getKey());
+					entry.getValue().orderPending = true;
+					return true;
+
+				}
+			}
 		}
 
 		return false;
@@ -155,7 +170,8 @@ public class CookAgent extends Agent {
 
 	public void msgHereIsAnOrder(WaiterAgent w, String choice, int table) {
 		orders.add(new CookOrder(w, choice, table, State.pending));
-		System.out.println ("Cook: received order of " + choice);
+		orderNumber++;
+		System.out.println ("Cook: received order of " + choice + " " + orders.size());
 		stateChanged();
 	}
 
@@ -195,9 +211,11 @@ public class CookAgent extends Agent {
 	}
 
 	public void msgOrderUnfulfilled(String type) {
-		for (MarketOrder m : incompleteOrders) {
-			if ((m.type.equals(type)) && (m.state == MarketOrderState.ordering)) {
-				m.state = MarketOrderState.pending;
+		synchronized (incompleteOrders) {
+			for (MarketOrder m : incompleteOrders) {
+				if ((m.type.equals(type)) && (m.state == MarketOrderState.ordering)) {
+					m.state = MarketOrderState.pending;
+				}
 			}
 		}
 		marketNum++;
@@ -210,8 +228,7 @@ public class CookAgent extends Agent {
 	private void CookIt(CookOrder o){
 		if (foodMap.get(o.choice).amount > 0) {
 			foodMap.get(o.choice).amount--; 
-			CookFood(o.choice);
-			o.grill = grillNum;
+			CookFood(o);
 		}
 		else {
 			System.out.println("I'm out of food!");
@@ -223,53 +240,56 @@ public class CookAgent extends Agent {
 	}
 
 	private void PlateIt(CookOrder o) {
-		PlateFood(grillNum);
+		PlateFood(o);
+		platingFood.drainPermits();
 		try {
-			askWaiter.acquire();
+			platingFood.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		int waiterPlateNum = plateNum - 1;
-		if (waiterPlateNum < 0)
-			waiterPlateNum = 3;
-		o.waiter.msgOrderIsReady(o.choice, o.table, waiterPlateNum); 
-		orders.remove(o);
-	}
-	
-	private void PlateFood(int grillNum) {
-		cookGui.DoGoToGrill2(grillNum);
-		try {
-			atGrill.acquire(); 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		cookGui.DoGoToPlate(plateNum);
-		plateNum++;
-		if (grillNum > 2) {
-			grillNum = 0;
-		}
-		
+
+		o.waiter.msgOrderIsReady(o.choice, o.table, o.plate); 
+		print ("SENT THIS MESSAGE");
+		o.state = State.sent;
 	}
 
-	private void CookFood(final String choice) {
-		
-		DoGetIngredients();
-		
-		cookGui.procureFood(choice);
-		
-		cookGui.DoGoToGrill(grillNum);
-		grillNum++;
-		if (grillNum > 2) {
-			grillNum = 0;
-		}
+	private void PlateFood(CookOrder o) {
+		cookGui.DoGoToGrill2(o.grill);
+		print ("GOING TO GRILL " + o.grill);
 		atGrill.drainPermits();
 		try {
 			atGrill.acquire(); 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
+		cookGui.DoGoToPlate(o.plate, o.orderNum);
+		atPlate.drainPermits();
+		try {
+			atPlate.acquire(); 
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		print ("done plating " + o.choice);
+
+	}
+
+	private void CookFood(final CookOrder o) {
+
+		DoGetIngredients();
+
+		cookGui.procureFood(o.choice, o.orderNum);
+
+		cookGui.DoGoToGrill(o.grill, o.orderNum);
+
+		atGrill.drainPermits();
+		try {
+			atGrill.acquire(); 
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		cookGui.DoGoHome();
 		atHome.drainPermits();
 		try {
@@ -277,14 +297,14 @@ public class CookAgent extends Agent {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		timer.schedule(new TimerTask() {
 			public void run() {
-				print("Done cooking " + choice );
-				markFoodDone(choice);
+				print("Done cooking " + o.choice );
+				markFoodDone(o);
 			}
 		},
-		foodMap.get(choice).cookingTime*1000);
+		foodMap.get(o.choice).cookingTime*1000);
 	}
 
 	private void orderFromMarket(String type) {
@@ -293,12 +313,13 @@ public class CookAgent extends Agent {
 	}
 
 
-	public void markFoodDone(String choice) {
-		for (CookOrder o : orders){
-			if (o.choice == choice) {
-				o.state = State.done;
+	public void markFoodDone(CookOrder or) {
+		synchronized(orders) {
+			for (CookOrder o : orders){
+				if (o.orderNum == or.orderNum) {
+					o.state = State.done;
+				}
 			}
-			break;
 		}
 		stateChanged();
 	}
@@ -319,9 +340,9 @@ public class CookAgent extends Agent {
 			}
 		}
 	}
-	
+
 	// GUI Stuff
-	
+
 	private void DoGetIngredients() {
 		cookGui.DoGoToFridge(); 
 		atFridge.drainPermits();
@@ -330,35 +351,40 @@ public class CookAgent extends Agent {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public void msgAtFridge() {
 		atFridge.release();
 		stateChanged();
 	}
-	
+
 	public void msgAtGrill() {
 		atGrill.release();
 		stateChanged();
 	}
-	
+
 	public void msgAtHome() {
 		atHome.release();
 		stateChanged();
 	}
-	
+
 	public void msgAtPlate() {
 		atPlate.release();
 		askWaiter.release();
+		platingFood.release();
 		stateChanged();
 	}
-	
-	public void msgImTakingTheFood() {
-		cookGui.removeFood();
+
+	public void msgImTakingTheFood(String choice, int t) {
+		for (CookOrder o : orders) {
+			if (o.state == State.sent)  {
+				cookGui.removeFood(o.orderNum);
+			}
+		}
 		stateChanged();
 	}
-	
+
 
 }
 

@@ -22,9 +22,10 @@ public class CookFoodGui implements Gui {
 	private boolean delivered;
 	public boolean visible = true;
 	Color foodColor = null;
+	int orderNumber = -1;
 
-
-	public CookFoodGui(CookGui cook, String choice, int x, int y) {
+	public CookFoodGui(CookGui cook, String choice, int x, int y, int n) {
+		orderNumber = n;
 		food = choice;
 		this.cook = cook;
 		xPos = x;
@@ -89,9 +90,6 @@ public class CookFoodGui implements Gui {
 		else if (yPos > yDestination)
 			yPos--;
 
-		/*if (xPos == waiter.locations.get(tableNumber-1).getX()+20 && yPos == waiter.locations.get(tableNumber-1).getY()+20) {
-			waiter.agent.msgFoodDelivered();
-		}*/
 	}
 
 	public void moveWithCookToGrill(int grillNum)
