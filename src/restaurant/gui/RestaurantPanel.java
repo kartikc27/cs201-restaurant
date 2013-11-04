@@ -51,7 +51,7 @@ public class RestaurantPanel extends JPanel implements ActionListener {
 	private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 	private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 
-
+	int custnum = -1;
 	private JPanel restLabel = new JPanel();
 	private ListPanel customerPanel = new ListPanel(this, "Customers");
 	private WaiterPanel waiterPanel = new WaiterPanel(this, "Waiters");
@@ -181,10 +181,13 @@ public class RestaurantPanel extends JPanel implements ActionListener {
 	 * @param name name of person
 	 */
 	public void addPerson(String type, String name) {
-
+		
 		if (type.equals("Customers")) {
+			custnum++;
+			if (custnum == 2)
+				custnum = -1;
 			CustomerAgent c = new CustomerAgent(name);	
-			CustomerGui g = new CustomerGui(c, gui);
+			CustomerGui g = new CustomerGui(c, gui, custnum);
 			gui.animationPanel.addGui(g);
 			c.setHost(host);
 			c.setCashier(cashier);

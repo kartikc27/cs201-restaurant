@@ -51,12 +51,12 @@ public class WaiterGui implements Gui {
 	private int CookY = 250;
 	private int plateNum = 0;
 
+	private int home = 30;
 
+	private int xPos = home, yPos = home;//default waiter position
+	int xDestination = home;//default start position
 
-	private int xPos = -30, yPos = -30;//default waiter position
-	int xDestination = -30;//default start position
-
-	int yDestination = -30;
+	int yDestination = home;
 
 	private int tableNumber = 0;
 	public boolean headingBack = false;
@@ -106,7 +106,7 @@ public class WaiterGui implements Gui {
 		}
 
 
-		if ((xPos == -30) && (yPos == -30))
+		if ((xPos == home) && (yPos == home))
 		{
 			if (headingBack)
 			{
@@ -140,7 +140,7 @@ public class WaiterGui implements Gui {
 	}
 
 	public void DoBringToTable(CustomerGui CustGui, int tNum) {
-		if ((xPos != -30) && (yPos != -30)) {
+		if ((xPos != home) && (yPos != home)) {
 			DoLeaveCustomer();
 			try {
 				agent.leftCustomer.acquire();
@@ -178,8 +178,8 @@ public class WaiterGui implements Gui {
 
 	public void DoLeaveCustomer() {
 		headingBack = true;
-		xDestination = -30;
-		yDestination = -30;
+		xDestination = home;
+		yDestination = home;
 	}
 
 	public void procureFood(String choice, int t) {
@@ -231,7 +231,7 @@ public class WaiterGui implements Gui {
 		}
 	}
 	public boolean isHome() {
-		if ((xPos == -30) && (yPos == -30)) {
+		if ((xPos == home) && (yPos == home)) {
 			return true;
 		}
 		return false;

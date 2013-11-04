@@ -22,16 +22,16 @@ public class CustomerGui implements Gui{
 	private int tempDestinationX, tempDestinationY;
 	private enum Command {noCommand, GoToSeat, LeaveRestaurant};
 	private Command command=Command.noCommand;
-
+	private int home = 0;
 
 	private static int tableNumber = 0;
 
-	public CustomerGui(CustomerAgent c, RestaurantGui gui){ //HostAgent m) {
+	public CustomerGui(CustomerAgent c, RestaurantGui gui, int custnum){ //HostAgent m) {
 		agent = c;
-		xPos = -70;
-		yPos = -70;
-		xDestination = -70;
-		yDestination = -70;
+		xPos = home+(custnum*30);
+		yPos = home;
+		xDestination = xPos;
+		yDestination = home;
 
 		this.gui = gui;
 	}

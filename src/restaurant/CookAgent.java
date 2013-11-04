@@ -249,7 +249,6 @@ public class CookAgent extends Agent {
 		}
 
 		o.waiter.msgOrderIsReady(o.choice, o.table, o.plate); 
-		print ("SENT THIS MESSAGE");
 		o.state = State.sent;
 	}
 
@@ -270,9 +269,6 @@ public class CookAgent extends Agent {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
-		print ("done plating " + o.choice);
-
 	}
 
 	private void CookFood(final CookOrder o) {
