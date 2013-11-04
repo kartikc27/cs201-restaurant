@@ -31,11 +31,15 @@ Reminder: To slow things down and see them more clearly you can always increase 
 
 ###General Notes
 
-No known errors other than ConcurrentModificationExceptions whenever Food objects are created and removed. 
+No known errors. Never had a concurrent mod error.
 
 Print statements in the console give a more detailed look at what is going. 
 
 The speed of the animation can be changed by increasing the frameDisplay variable in AnimationPanel.java
+
+The customer waiting area is pretty stupid and was a last minute thing. It only holds two customers before it overlaps.
+
+The cook animations are all there from getting food from the refrigerator to putting it on the grill to plating it
 
 ####Host Agent
 
