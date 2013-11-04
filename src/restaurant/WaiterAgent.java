@@ -551,12 +551,6 @@ public class WaiterAgent extends Agent implements Waiter{
 		host.msgImOffBreak(this);
 	}
 
-	@Override
-	public void msgHereIsComputedcheck(Check c) {
-		// TODO Auto-generated method stub
-
-	}
 
 
 }
-

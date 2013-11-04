@@ -13,28 +13,28 @@ import restaurant.gui.CustomerGui;
  */
 public interface Customer {
 
-	Check check = null;
+	
+
 	boolean oweMoney = false;
+	Check check = null;
 
 
 	public abstract void msgHereIsYourChange(double total);
 
 	public abstract void msgPunish();
 
-	public abstract void msgFoodUnavailable();
-
-
-	public abstract CustomerGui getGui();
-
 	public abstract void msgHereIsCheck(Check c);
 
-	public abstract void msgHereIsYourFood();
+	public abstract void msgFoodUnavailable();
+
+	public abstract void msgFollowMe(Menu menu);
 
 	public abstract void msgWhatWouldYouLike();
 
-	public abstract void setWaiter(WaiterAgent waiterAgent);
+	public abstract void msgHereIsYourFood();
+
+	public abstract CustomerGui getGui();
 
 
-	public abstract void msgFollowMe(Menu menu);
 
 }

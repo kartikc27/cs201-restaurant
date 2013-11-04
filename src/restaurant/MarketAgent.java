@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import restaurant.interfaces.Customer;
+import restaurant.interfaces.Market;
 import agent.Agent;
 
 
-public class MarketAgent extends Agent {
+public class MarketAgent extends Agent implements Market {
 
 	private CookAgent cook;
 	private CashierAgent cashier;

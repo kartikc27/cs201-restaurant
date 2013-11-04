@@ -20,6 +20,8 @@ public class MockCustomer extends Mock implements Customer {
 	 * Reference to the Cashier under test that can be set by the unit test.
 	 */
 	public CashierAgent cashier;
+	public Check check1 = null;
+	public double money;
 
 	public MockCustomer(String name) {
 		super(name);
@@ -35,16 +37,9 @@ public class MockCustomer extends Mock implements Customer {
 		log.add(new LoggedEvent("Received YouOweUs from cashier."));
 	}
 
-	@Override
-	public void msgFoodUnavailable() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public CustomerGui getGui() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public void setCashier(CashierAgent c) {
+		cashier = c;
 	}
 
 	@Override
@@ -54,7 +49,13 @@ public class MockCustomer extends Mock implements Customer {
 	}
 
 	@Override
-	public void msgHereIsYourFood() {
+	public void msgFoodUnavailable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void msgFollowMe(Menu menu) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -66,15 +67,15 @@ public class MockCustomer extends Mock implements Customer {
 	}
 
 	@Override
-	public void setWaiter(WaiterAgent waiterAgent) {
+	public void msgHereIsYourFood() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void msgFollowMe(Menu menu) {
+	public CustomerGui getGui() {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	

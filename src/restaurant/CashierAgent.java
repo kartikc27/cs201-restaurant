@@ -7,6 +7,7 @@ import java.util.Map;
 
 import restaurant.Check.CheckState;
 import restaurant.interfaces.Customer;
+import restaurant.interfaces.Market;
 import restaurant.interfaces.Waiter;
 import restaurant.test.mock.EventLog;
 import restaurant.test.mock.MockWaiter;
@@ -37,11 +38,12 @@ public class CashierAgent extends Agent {
 		}
 	}
 	public enum mbState {unpaid, paid};
+	
 	public class MyMarketBill {
 		public Double price;
-		mbState state; 
-		MarketAgent market;
-		public MyMarketBill(Double p, MarketAgent m){
+		public mbState state; 
+		public Market market;
+		public MyMarketBill(Double p, Market m){
 			price = p;
 			market = m;
 			state = mbState.unpaid;
@@ -77,7 +79,7 @@ public class CashierAgent extends Agent {
 		stateChanged();
 	}
 
-	public void msgHereIsMarketBill(double price, MarketAgent m) {
+	public void msgHereIsMarketBill(double price, Market m) {
 		marketbills.add(new MyMarketBill(price, m));
 		stateChanged();
 	}
@@ -88,7 +90,6 @@ public class CashierAgent extends Agent {
 			for (MyMarketBill mb : marketbills) {
 				if (mb.state == mbState.unpaid) {
 					payMarketBill(mb);
-					//mb.state = mbState.paid;
 				}
 			}
 		}
@@ -125,7 +126,7 @@ public class CashierAgent extends Agent {
 			synchronized(computedChecks) {
 				for (MyCheck checks : computedChecks) {
 					if ((checks.check.state == CheckState.incomplete) && (checks.check.c.equals(c.c))) {
-						c.price = c.price + c.c.check.price;
+                        c.price = c.price + c.c.check.price;
 					}
 
 

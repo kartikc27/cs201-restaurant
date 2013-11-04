@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 
 import restaurant.CustomerAgent;
 import restaurant.WaiterAgent;
+import restaurant.interfaces.Customer;
 /**
  * Main GUI class.
  * Contains the main frame and subsequent panels
@@ -169,12 +170,12 @@ public class RestaurantGui extends JFrame implements ActionListener {
      * Message sent from a customer gui to enable that customer's
      * "I'm hungry" checkbox.
      *
-     * @param c reference to the customer
+     * @param agent reference to the customer
      */
-    public void setCustomerEnabled(CustomerAgent c) {
+    public void setCustomerEnabled(Customer agent) {
         if (currentPerson instanceof CustomerAgent) {
             CustomerAgent cust = (CustomerAgent) currentPerson;
-            if (c.equals(cust)) {
+            if (agent.equals(cust)) {
                 stateCB.setEnabled(true);
                 stateCB.setSelected(false);
             }
