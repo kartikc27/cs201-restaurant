@@ -6,28 +6,71 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
 import restaurant.CookAgent;
+import restaurant.gui.WaiterGui.Location;
 
 public class CookGui implements Gui {
 
     private CookAgent agent = null;
+    public CookFoodGui food = null;
+    
+	public static List<CookFoodGui> foods = new ArrayList<CookFoodGui>();
+
     
     private Graphics2D g = null;
 
-    private int xPos = 570, yPos = 110; // cook position
+    private int xPos = 575, yPos = 135; // cook position
+    int xDestination = 575;//default start position
+	int yDestination = 135;
             
+	private AnimationPanel animationPanel = null;
+	
+	
+	
+	public static class Location {
+		public Location (int x, int y) {
+			this.setX(x);
+			this.y = y;
+		}
+		public int getX() {
+			return x;
+		}
+		public void setX(int x) {
+			this.x = x;
+		}
+		public int getY() {
+			return y;
+		}
+		public void setY(int y) {
+			this.y = y;
+		}
+		private int x;
+		private int y;
+	}
+
+	public static List<Location> grills = new ArrayList<Location>();
+	public static List<Location> plates = new ArrayList<Location>();
 
     public CookGui(CookAgent agent) {
 		this.agent = agent;
+		int n = 510;
+		for (int i = 0; i < 3; i++) {
+			grills.add(new Location(n, 50));
+			n += 55;
+		}
+		n = 510;
+		for (int i = 0; i < 3; i++) {
+			plates.add(new Location(n, 200));
+			n += 55;
+		}
 	}
 
     
-    // retrieve table location information from the animation panel
-    // pass the table location information to the Customer GUI (the customer cannot access the info, but the GUI can)
-    // pass the table location information to the WAITER Gui
 
 
     public void draw(Graphics2D g) {
@@ -48,11 +91,77 @@ public class CookGui implements Gui {
     public int getYPos() {
         return yPos;
     }
+    
+    public void DoGoToFridge() {
+    	xDestination = 460;
+    	yDestination = 135;
+    }
+    
+    public void procureFood(String choice) {
+    	food = new CookFoodGui(this, choice, xPos, yPos);
+    	foods.add(food);
+		animationPanel.addGui(food);
+    }
+    
+    public void DoGoToGrill(int grillNum) {
+    	xDestination = grills.get(0).x + 9;
+    	yDestination = 100;
+    	food.moveWithCookToGrill(grillNum);
+    }
+    
+    public void DoGoToGrill2(int grillNum) {
+    	xDestination = grills.get(0).x + 9;
+    	yDestination = 100;
+    }
+    
+    public void DoGoToPlate(int plateNum) {
+    	xDestination = grills.get(plateNum).x + 9;
+    	yDestination = 170;
+    	food.moveWithCookToPlate(plateNum);
+    }
+    
+    public void DoGoHome() {
+    	xDestination = 575;
+    	yDestination = 135;
+    }
+    
+    public void removeFood() {
+    	food.visible = false;
+    }
+    
+    
 
 
 	@Override
 	public void updatePosition() {
-		// TODO Auto-generated method stub
+		if (xPos < xDestination)
+			xPos++;
+		else if (xPos > xDestination)
+			xPos--;
+
+		if (yPos < yDestination)
+			yPos++;
+		else if (yPos > yDestination)
+			yPos--;
 		
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == 460) && (yDestination == 135)) {
+			agent.msgAtFridge();
+		}
+		
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == grills.get(0).getX() + 9) && (yDestination == 100)) {
+			agent.msgAtGrill();
+		}
+		
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == plates.get(0).getX() + 9) && (yDestination == 170)) {
+			agent.msgAtPlate();
+		}
+		
+		if ((xPos == xDestination) && (yPos == yDestination) && (xDestination == 575) && (yDestination == 135)) {
+			agent.msgAtHome();
+		}
+	}
+	
+	public void setAnimationPanel(AnimationPanel ap) {
+		animationPanel = ap;
 	}
 }

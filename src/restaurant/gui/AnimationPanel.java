@@ -39,6 +39,9 @@ public class AnimationPanel extends JPanel implements ActionListener {
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		Color tableColor = new Color(149, 165, 166);
+		Color grillColor = new Color(241, 196, 15);
+		Color platingColor = new Color(26, 188, 156);
+		Color fridgeColor = new Color(155, 89, 182);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -51,6 +54,23 @@ public class AnimationPanel extends JPanel implements ActionListener {
 			g2.fillRect(n, 550, 75, 75);
 			n += 200;
 		}
+		
+		n = 510;
+		for (int i = 0; i < 3; i++) {
+			g2.setColor(platingColor);
+			g2.fillRect(n, 200, 50, 50);
+			n += 55;
+		}
+		
+		n = 510;
+		for (int i = 0; i < 3; i++) {
+			g2.setColor(grillColor);
+			g2.fillRect(n, 50, 50, 50);
+			n += 55;
+		}
+		
+		g2.setColor(fridgeColor);
+		g2.fillRect(370,50, 100, 200);
 
 		synchronized(guis){
 			for(Gui gui : guis) {
@@ -89,6 +109,11 @@ public class AnimationPanel extends JPanel implements ActionListener {
 	}
 
 	public void addGui(FoodGui gui) {
+		guis.add(gui);
+	}
+
+	public void addGui(CookFoodGui gui) {
+		
 		guis.add(gui);
 	}
 

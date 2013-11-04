@@ -7,6 +7,7 @@ package restaurant.gui;
 
 import restaurant.CustomerAgent;
 import restaurant.WaiterAgent;
+import restaurant.gui.CookGui.Location;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -42,12 +43,14 @@ public class WaiterGui implements Gui {
 
 	public static List<Location> locations = new ArrayList<Location>();
 	public static List<FoodGui> foodItems = new ArrayList<FoodGui>();
+	public static List<Location> plates = new ArrayList<Location>();
 
 	protected WaiterAgent agent = null;
 	private FoodGui food = null;
-	private int CookX = 540;
-	private int CookY = 140;
-	
+	private int CookX = 475;
+	private int CookY = 250;
+	private int plateNum = 0;
+
 
 
 	private int xPos = -30, yPos = -30;//default waiter position
@@ -68,6 +71,11 @@ public class WaiterGui implements Gui {
 		for (int i = 0; i < 3; i++) {
 			locations.add(new Location(n, 550));
 			n += 200;
+		}
+		n = 510;
+		for (int i = 0; i < 3; i++) {
+			plates.add(new Location(n, 200));
+			n += 55;
 		}
 	}
 
@@ -110,7 +118,13 @@ public class WaiterGui implements Gui {
 		if ((xPos == CookX) && (yPos == CookY) && (xDestination == CookX) && (yDestination == CookY)){ //hack
 			agent.msgAtCook();
 		}
-		
+
+		if ((plateNum >= 0) && (plateNum < 3)){
+			if ((xPos == plates.get(plateNum).getX()+9) && (yPos == plates.get(plateNum).getY()+40) && (xDestination == plates.get(plateNum).getX()+9) && (yDestination == plates.get(plateNum).getY()+40)){ 
+				agent.msgAtPlate();
+			}
+		}
+
 	}
 
 	public void draw(Graphics2D g) {
@@ -146,10 +160,18 @@ public class WaiterGui implements Gui {
 		yDestination = locations.get(tableNumber-1).getY() - 70;
 
 	}
-	public void DoGoToCook()
-	{
-		xDestination = CookX; 
-		yDestination = CookY; 
+	public void DoGoToCook(int plateNum)
+	{	
+		this.plateNum = plateNum;
+		if (plateNum == -1) {
+			xDestination = CookX; 
+			yDestination = CookY; 
+		}
+		else {
+			xDestination = plates.get(plateNum).getX()+9;
+			yDestination = plates.get(plateNum).getY()+40;
+		}
+
 	}
 
 	public void DoLeaveCustomer() {
@@ -157,7 +179,7 @@ public class WaiterGui implements Gui {
 		xDestination = -30;
 		yDestination = -30;
 	}
-	
+
 	public void procureFood(String choice, int t) {
 		food = new FoodGui(this, choice, false, xPos, yPos, t);
 		foodItems.add(food);
@@ -180,7 +202,7 @@ public class WaiterGui implements Gui {
 	public void DoDeliverFood(int t, String choice, CustomerGui custGui) {
 		food.moveToTable();
 	}
-	
+
 	public void setBreak() {
 		agent.msgWantBreak();
 	}

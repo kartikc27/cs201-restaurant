@@ -107,7 +107,7 @@ public class MarketAgent extends Agent implements Market {
 						orderPending = false;
 						busy = false;
 					}},
-					100);
+					10000);
 				print ("Sending bill to Cashier");
 				cashier.msgHereIsMarketBill(inventory.get(order.type).price, this);
 			}

@@ -21,7 +21,7 @@ import agent.Agent;
 
 
 public class WaiterAgent extends Agent implements Waiter{
-
+	int plateNum = 0;
 	private String name;
 	public Semaphore atTable = new Semaphore(0, true);
 	public Semaphore leftCustomer = new Semaphore(0, true);
@@ -30,6 +30,7 @@ public class WaiterAgent extends Agent implements Waiter{
 	public Semaphore orderGiven = new Semaphore(0, true);
 	public Semaphore serveFood = new Semaphore(0, true);
 	public Semaphore takingBreak = new Semaphore(0,true);
+	public Semaphore atPlate = new Semaphore(0,true);
 
 	boolean readyCustomers = false;
 	boolean WantBreak = false;
@@ -126,7 +127,8 @@ public class WaiterAgent extends Agent implements Waiter{
 
 	}
 
-	public void msgOrderIsReady(String choice, int table) {
+	public void msgOrderIsReady(String choice, int table, int num) {
+		plateNum = num;
 		readyOrders.add(new WaiterOrder(choice, table));
 		stateChanged();
 	}
@@ -175,6 +177,11 @@ public class WaiterAgent extends Agent implements Waiter{
 
 	public void msgAtCook() {
 		atCook.release();
+		stateChanged();
+	}
+	
+	public void msgAtPlate() {
+		atPlate.release();
 		stateChanged();
 	}
 
@@ -453,7 +460,7 @@ public class WaiterAgent extends Agent implements Waiter{
 	private void GiveOrderToCook(MyCustomer c){
 		c.s = CustomerState.orderGiven;
 		atCook.drainPermits();
-		waiterGui.DoGoToCook();		
+		waiterGui.DoGoToCook(-1);		
 		try {
 			atCook.acquire();
 		} catch (InterruptedException e) {
@@ -472,14 +479,16 @@ public class WaiterAgent extends Agent implements Waiter{
 				if (mc.s != CustomerState.done)
 				{
 					if (readyOrders.get(0).table == mc.t) {
-						waiterGui.DoGoToCook();		
-						atCook.drainPermits();
+						waiterGui.DoGoToCook(plateNum);
+						System.out.println(plateNum);
+						atPlate.drainPermits();
 						try {
-							atCook.acquire();
+							atPlate.acquire();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						cook.msgImTakingTheFood();
 						waiterGui.procureFood(mc.choice, mc.t);
 						waiterGui.DoGoToTable(mc.t); 
 						atTable.drainPermits();
